@@ -17,7 +17,7 @@ const sections = [
   },
   {
     title: "Aggregate download counts",
-    content: <p>HiveBuzz stores a release-level total after a completed download. The counter is not intended to identify a person and is never presented as a safety or reputation score.</p>,
+    content: <p>HiveBuzz stores a release-level total after a completed download. It applies short-lived, in-memory network rate limits and a release-level write budget to reduce abuse, but does not persist an address, cookie, device identifier, or per-download event. The counter is never presented as a safety or reputation score.</p>,
   },
   {
     title: "Hosting and public requests",

@@ -48,6 +48,27 @@ test("rejects hidden fields, unsafe Agent capabilities, secrets, and bad artifac
   const pack = structuredClone(base) as unknown as { type: string };
   pack.type = "pack";
   assert.match(validateManifest(pack, { allowRelativeArtifact: true }).errors.join(" "), /type must be agent/i);
+
+  const missingSnapshot = structuredClone(base) as Partial<typeof base>;
+  delete missingSnapshot.snapshot;
+  assert.match(validateManifest(missingSnapshot, { allowRelativeArtifact: true }).errors.join(" "), /snapshot safety policy/i);
+
+  const spoofed = structuredClone(base);
+  spoofed.release.name = "Safe agent\u202Egpj.exe";
+  assert.match(validateManifest(spoofed, { allowRelativeArtifact: true }).errors.join(" "), /control characters|Unicode direction/i);
+
+  const knownSecrets = [
+    `AIza${"A".repeat(35)}`,
+    `sk_live_${"A".repeat(24)}`,
+    `ya29.${"A".repeat(30)}`,
+    `npm_${"A".repeat(36)}`,
+    Buffer.from("-----BEGIN PRIVATE KEY-----\nexample\n-----END PRIVATE KEY-----").toString("base64"),
+  ];
+  for (const knownSecret of knownSecrets) {
+    const leaked = structuredClone(base);
+    leaked.release.description = `Credential sample ${knownSecret}`;
+    assert.match(validateManifest(leaked, { allowRelativeArtifact: true }).errors.join(" "), /secret|private identity/i, knownSecret.slice(0, 12));
+  }
 });
 
 test("every bundled catalog artifact passes the exact browser handoff scanner", async () => {

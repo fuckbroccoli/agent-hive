@@ -1,3 +1,5 @@
+import { containsKnownSecret, containsSpoofingControl, isSafePublicLabel } from "./security-patterns";
+
 const JSON_MAX_BYTES = 5 * 1024 * 1024;
 const PNG_MAX_BYTES = 10 * 1024 * 1024;
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
@@ -89,21 +91,24 @@ function boundedOptionalInteger(value: unknown, label: string, min: number, max:
 
 function possibleSecrets(value: unknown, path = "snapshot"): string[] {
   const matches: string[] = [];
-  const patterns = [
-    /\bnsec1[023456789acdefghjklmnpqrstuvwxyz]{20,}\b/i,
-    /\bsk-[A-Za-z0-9_-]{20,}\b/,
-    /\bgh[pousr]_[A-Za-z0-9]{20,}\b/,
-    /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/,
-    /\bAKIA[A-Z0-9]{16}\b/,
-    /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/,
-    /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-  ];
   if (typeof value === "string") {
-    if (patterns.some((pattern) => pattern.test(value))) matches.push(path);
+    if (containsKnownSecret(value)) matches.push(path);
   } else if (Array.isArray(value)) {
     value.forEach((item, index) => matches.push(...possibleSecrets(item, `${path}[${index}]`)));
   } else if (isRecord(value)) {
     Object.entries(value).forEach(([key, item]) => matches.push(...possibleSecrets(item, `${path}.${key}`)));
+  }
+  return matches;
+}
+
+function possibleSpoofingControls(value: unknown, path = "snapshot"): string[] {
+  const matches: string[] = [];
+  if (typeof value === "string") {
+    if (containsSpoofingControl(value)) matches.push(path);
+  } else if (Array.isArray(value)) {
+    value.forEach((item, index) => matches.push(...possibleSpoofingControls(item, `${path}[${index}]`)));
+  } else if (isRecord(value)) {
+    Object.entries(value).forEach(([key, item]) => matches.push(...possibleSpoofingControls(item, `${path}.${key}`)));
   }
   return matches;
 }
@@ -247,7 +252,7 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
       "name", "sourceIsBuiltIn", "systemPrompt", "runtime", "model", "provider", "parallelism", "respondTo",
       "respondToAllowlist", "namePool", "idleTimeoutSeconds", "maxTurnDurationSeconds",
     ], "Snapshot definition", errors);
-    if (typeof definition.name !== "string" || !definition.name.trim() || definition.name.length > 120) errors.push("Agent definition name is invalid.");
+    if (!isSafePublicLabel(definition.name, 1, 120)) errors.push("Agent definition name must use visible characters without control characters.");
     if (definition.sourceIsBuiltIn !== undefined && typeof definition.sourceIsBuiltIn !== "boolean") errors.push("sourceIsBuiltIn must be a boolean.");
     boundedOptionalString(definition.systemPrompt, "System prompt", 256 * 1024, errors);
     boundedOptionalString(definition.runtime, "Runtime", 120, errors);
@@ -269,7 +274,7 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
     errors.push("Snapshot profile is missing.");
   } else {
     onlyKeys(profile, ["displayName", "about", "avatarDataUrl", "avatarUrl"], "Snapshot profile", errors);
-    if (typeof profile.displayName !== "string" || !profile.displayName.trim() || profile.displayName.length > 120) errors.push("Agent display name is invalid.");
+    if (!isSafePublicLabel(profile.displayName, 1, 120)) errors.push("Agent display name must use visible characters without control characters.");
     boundedOptionalString(profile.about, "Profile description", 4_000, errors);
     boundedOptionalString(profile.avatarDataUrl, "Embedded avatar", 3 * 1024 * 1024, errors);
     if (typeof profile.avatarDataUrl === "string") validateDataAvatar(profile.avatarDataUrl, errors);
@@ -290,6 +295,7 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
   }
 
   if (possibleSecrets(input).length) errors.push("Possible API secret, private key, or credential material was detected.");
+  if (possibleSpoofingControls(input).length) errors.push("Unicode direction or invisible control characters are not allowed in a public snapshot.");
   return errors.length ? null : input as unknown as AgentSnapshot;
 }
 
@@ -346,7 +352,7 @@ export async function scanAgentSnapshot(
   if (!hardErrors.length && snapshot) {
     checks.push("Buzz Agent Snapshot v1 structure verified");
     checks.push("No plaintext memory or source allowlist");
-    checks.push("No private key or credential pattern detected");
+    checks.push("No known private key or credential pattern detected");
     checks.push(isPng ? "PNG metadata channels restricted" : "Strict JSON fields only");
     checks.push("Exact SHA-256 and byte size verified");
     warnings.push("Static checks cannot prove an agent's instructions are benign. Review the full Buzz import preview before starting it.");

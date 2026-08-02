@@ -14,6 +14,11 @@ The site performs static, browser-local checks. Static checks reduce risk but
 cannot prove that an agent prompt is benign. Imported agents should remain
 stopped until the complete Buzz preview has been reviewed.
 
+Credential scanning covers known provider formats and encoded PEM private keys,
+but it is not a proof that a file contains no secret. A clean scan means only
+that no known pattern was found. Public names and metadata also reject invisible
+and bidirectional control characters that could disguise what the catalog shows.
+
 Public fork pull requests do not run contributor-controlled code in GitHub
 Actions. Maintainers review artifacts as untrusted data, reproduce scans in an
 isolated environment, and only run the full workflow from a maintainer-owned

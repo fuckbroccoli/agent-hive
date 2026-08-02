@@ -21,8 +21,16 @@ test("server-renders the finished HiveBuzz product", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+  const contentSecurityPolicy = response.headers.get("content-security-policy") ?? "";
+  assert.match(contentSecurityPolicy, /default-src 'self'/);
+  assert.match(contentSecurityPolicy, /connect-src 'self'/);
+  assert.doesNotMatch(contentSecurityPolicy, /script-src[^;]*'unsafe-inline'/);
+  assert.equal(response.headers.get("x-frame-options"), "DENY");
 
   const html = await response.text();
+  const nonce = /script-src[^;]*'nonce-([^']+)'/.exec(contentSecurityPolicy)?.[1];
+  assert.ok(nonce);
+  assert.match(html, new RegExp(`<script[^>]+nonce="${nonce}"`));
   assert.match(html, /<html lang="en">/i);
   assert.match(html, /<title>hivebuzz - Open Buzz Agent Library<\/title>/i);
   assert.match(html, /Bring better/);
@@ -61,6 +69,43 @@ test("server-renders the finished HiveBuzz product", async () => {
   assert.doesNotMatch(html, /Connect signer|Give Honey|Sign & publish|Recent signed/i);
   assert.match(html, /<meta property="og:image" content="https?:\/\/[^\"]+\/hivebuzz-social-card-20260803\.png"\/>/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
+});
+
+test("adds the common security headers to optimized image responses", async () => {
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("image-test", `${process.pid}-${Date.now()}`);
+  const { default: worker } = await import(workerUrl.href);
+  const image = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+  const response = await worker.fetch(
+    new Request("http://localhost/_vinext/image?url=%2Fhive-mark.png&w=64&q=75", {
+      headers: { accept: "image/png" },
+    }),
+    {
+      ASSETS: {
+        fetch: async () => new Response(image, { status: 200, headers: { "content-type": "image/png" } }),
+      },
+      IMAGES: {
+        input() {
+          return {
+            transform() {
+              return {
+                output: async () => ({
+                  response: () => new Response(image, { status: 200, headers: { "content-type": "image/png" } }),
+                }),
+              };
+            },
+          };
+        },
+      },
+    },
+    { waitUntil() {}, passThroughOnException() {} },
+  );
+
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-security-policy") ?? "", /script-src 'none'/);
+  assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  assert.equal(response.headers.get("x-frame-options"), "DENY");
+  assert.match(response.headers.get("permissions-policy") ?? "", /camera=\(\)/);
 });
 
 test("server-renders the privacy and terms routes", async () => {

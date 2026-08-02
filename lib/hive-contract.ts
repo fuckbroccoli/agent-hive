@@ -74,7 +74,7 @@ export interface ReleaseManifest {
   };
   contents: ReleaseContents;
   capabilities: ReleaseCapabilities;
-  snapshot?: {
+  snapshot: {
     format: "buzz-agent-snapshot";
     version: 1;
     memoryLevel: "none";

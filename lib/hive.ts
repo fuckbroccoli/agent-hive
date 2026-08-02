@@ -3,14 +3,12 @@ import {
   AGENT_HARNESSES,
   CATALOG_SCHEMA,
   releaseKeyFor,
-  type ReleaseCapabilities,
-  type ReleaseContents,
   type ReleaseManifest,
-  type ReleaseMetadata,
   type ReleaseRecord,
   type RiskLevel,
   type ValidationResult,
 } from "./hive-contract";
+import { containsKnownSecret, containsSpoofingControl, isSafePublicLabel } from "./security-patterns";
 
 export * from "./hive-contract";
 
@@ -41,21 +39,13 @@ function validateAllowedKeys(input: unknown, allowed: readonly string[], label: 
 
 function hasSecretMaterial(value: unknown, path = "manifest"): string[] {
   const matches: string[] = [];
-  const secretValuePatterns = [
-    /\bnsec1[023456789acdefghjklmnpqrstuvwxyz]{20,}\b/i,
-    /\bsk-[A-Za-z0-9_-]{20,}\b/,
-    /\bgh[pousr]_[A-Za-z0-9]{20,}\b/,
-    /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/,
-    /\bAKIA[A-Z0-9]{16}\b/,
-    /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-  ];
   const sensitiveKeys = new Set([
     "secret", "privatekey", "apikey", "accesstoken", "refreshtoken",
     "authtag", "credential", "credentials", "password", "nsec",
   ]);
 
   if (typeof value === "string") {
-    if (secretValuePatterns.some((pattern) => pattern.test(value))) matches.push(path);
+    if (containsKnownSecret(value)) matches.push(path);
     return matches;
   }
   if (Array.isArray(value)) {
@@ -69,6 +59,18 @@ function hasSecretMaterial(value: unknown, path = "manifest"): string[] {
       if (sensitiveKeys.has(normalizedKey) && item !== null && item !== "" && item !== undefined) matches.push(itemPath);
       matches.push(...hasSecretMaterial(item, itemPath));
     }
+  }
+  return matches;
+}
+
+function hasSpoofingMaterial(value: unknown, path = "manifest"): string[] {
+  const matches: string[] = [];
+  if (typeof value === "string") {
+    if (containsSpoofingControl(value)) matches.push(path);
+  } else if (Array.isArray(value)) {
+    value.forEach((item, index) => matches.push(...hasSpoofingMaterial(item, `${path}[${index}]`)));
+  } else if (isRecord(value)) {
+    Object.entries(value).forEach(([key, item]) => matches.push(...hasSpoofingMaterial(item, `${path}.${key}`)));
   }
   return matches;
 }
@@ -96,14 +98,14 @@ function artifactPathEndsWith(value: unknown, suffix: string) {
   }
 }
 
-function validateMetadata(input: unknown, errors: string[]): input is ReleaseMetadata {
+function validateMetadata(input: unknown, errors: string[]): void {
   if (!isRecord(input)) {
     errors.push("Release metadata is required.");
-    return false;
+    return;
   }
   validateAllowedKeys(input, ["id", "name", "version", "category", "summary", "description", "license", "homepage", "keywords", "engines", "recommendedHarness", "recommendedModel"], "Release metadata", errors);
   if (typeof input.id !== "string" || !RELEASE_ID.test(input.id)) errors.push("Release id is invalid.");
-  if (!isShortString(input.name, 2, 60)) errors.push("Release name must be 2–60 characters.");
+  if (!isSafePublicLabel(input.name, 2, 60)) errors.push("Release name must be 2–60 visible characters without control characters.");
   if (typeof input.version !== "string" || !SEMVER.test(input.version) || input.version.length > 32) errors.push("Release version must use semantic versioning.");
   if (!AGENT_CATEGORIES.includes(input.category as (typeof AGENT_CATEGORIES)[number])) errors.push("Release category is invalid.");
   if (!isShortString(input.summary, 12, 160)) errors.push("Summary must be 12–160 characters.");
@@ -117,26 +119,24 @@ function validateMetadata(input: unknown, errors: string[]): input is ReleaseMet
     validateAllowedKeys(input.engines, ["buzz"], "Engine compatibility", errors);
   }
   if (!AGENT_HARNESSES.includes(input.recommendedHarness as (typeof AGENT_HARNESSES)[number])) errors.push("Recommended Agent harness is invalid.");
-  if (!isShortString(input.recommendedModel, 1, 80)) errors.push("Recommended model must be 1–80 characters.");
-  return true;
+  if (!isSafePublicLabel(input.recommendedModel, 1, 80)) errors.push("Recommended model must be 1–80 visible characters without control characters.");
 }
 
-function validateContents(input: unknown, errors: string[]): input is ReleaseContents {
+function validateContents(input: unknown, errors: string[]): void {
   if (!isRecord(input)) {
     errors.push("Release contents summary is required.");
-    return false;
+    return;
   }
   validateAllowedKeys(input, ["agents", "skills", "mcpServers", "hooks"], "Contents summary", errors);
   if (input.agents !== 1 || input.skills !== 0 || input.mcpServers !== 0 || input.hooks !== 0) {
     errors.push("Agent snapshots must contain exactly one agent and no bundled skills, MCP servers, or hooks.");
   }
-  return true;
 }
 
-function validateCapabilities(input: unknown, errors: string[]): input is ReleaseCapabilities {
+function validateCapabilities(input: unknown, errors: string[]): void {
   if (!isRecord(input)) {
     errors.push("Capability declaration is required.");
-    return false;
+    return;
   }
   validateAllowedKeys(input, ["networkHosts", "filesystem", "commands", "hooks", "mcpServers"], "Capability declaration", errors);
   if (!isStringArray(input.networkHosts, 32, 120)) errors.push("Network host declaration is invalid.");
@@ -179,7 +179,6 @@ function validateCapabilities(input: unknown, errors: string[]): input is Releas
     || servers.length > 0
     || (Array.isArray(input.networkHosts) && input.networkHosts.length > 0)
   ) errors.push("Agent snapshots cannot declare executable, network, filesystem, hook, or MCP capabilities.");
-  return true;
 }
 
 export function validateManifest(
@@ -193,7 +192,7 @@ export function validateManifest(
   validateAllowedKeys(input, ["schema", "type", "contributorName", "release", "artifact", "contents", "capabilities", "snapshot"], "Release manifest", errors);
   if (input.schema !== CATALOG_SCHEMA) errors.push("Unsupported catalog schema.");
   if (input.type !== "agent") errors.push("Release type must be agent.");
-  if (input.contributorName !== undefined && !isShortString(input.contributorName, 1, 60)) errors.push("Contributor name must be 60 characters or fewer.");
+  if (input.contributorName !== undefined && !isSafePublicLabel(input.contributorName, 1, 60)) errors.push("Contributor name must be 60 visible characters or fewer without control characters.");
   validateMetadata(input.release, errors);
 
   if (!isRecord(input.artifact)) {
@@ -220,6 +219,7 @@ export function validateManifest(
     || snapshot.identityPolicy !== "fresh-on-import"
     || snapshot.sourceAllowlist !== "cleared-on-import") errors.push("Agent snapshot safety policy is missing or invalid.");
   if (hasSecretMaterial(input).length) errors.push("Possible secret or private identity material is present.");
+  if (hasSpoofingMaterial(input).length) errors.push("Unicode direction or invisible control characters are not allowed in catalog metadata.");
 
   return errors.length
     ? { ok: false, errors: [...new Set(errors)] }

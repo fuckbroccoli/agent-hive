@@ -1,4 +1,4 @@
-import { ensureDatabase, getD1 } from "@/db";
+import { ensureCatalog, getD1 } from "@/db";
 import { recordFromManifest, validateManifest, type ReleaseRecord, type RiskLevel } from "@/lib/hive";
 
 interface ReleaseRow {
@@ -18,7 +18,7 @@ function json(data: unknown, init: ResponseInit = {}) {
 
 export async function GET() {
   try {
-    await ensureDatabase();
+    await ensureCatalog();
     const db = await getD1();
     const result = await db.prepare(`
       SELECT

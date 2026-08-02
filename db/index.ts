@@ -1,5 +1,11 @@
 import { CATALOG_RELEASES } from "@/lib/catalog-seeds";
 
+const CATALOG_SOURCE = CATALOG_RELEASES
+  .map((record) => `${record.key}:${JSON.stringify(record.manifest)}:${record.addedAt}`)
+  .join("|");
+const CATALOG_VERSION = crypto.subtle.digest("SHA-256", new TextEncoder().encode(CATALOG_SOURCE))
+  .then((digest) => Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join(""));
+
 let initialization: Promise<void> | null = null;
 
 export async function getD1() {
@@ -9,45 +15,25 @@ export async function getD1() {
   return bindings.DB;
 }
 
-export function ensureDatabase() {
+export function ensureCatalog() {
   if (initialization) return initialization;
-  initialization = initialize().catch((error) => {
+  initialization = synchronizeCatalog().catch((error) => {
     initialization = null;
     throw error;
   });
   return initialization;
 }
 
-async function initialize() {
+async function synchronizeCatalog() {
   const db = await getD1();
-  await db.batch([
-    db.prepare(`
-      CREATE TABLE IF NOT EXISTS releases (
-        release_key TEXT PRIMARY KEY,
-        release_id TEXT NOT NULL,
-        type TEXT NOT NULL CHECK (type = 'agent'),
-        name TEXT NOT NULL,
-        version TEXT NOT NULL,
-        summary TEXT NOT NULL,
-        artifact_url TEXT NOT NULL,
-        artifact_sha256 TEXT NOT NULL,
-        artifact_size INTEGER NOT NULL,
-        manifest_json TEXT NOT NULL,
-        risk_level TEXT NOT NULL CHECK (risk_level IN ('low', 'review', 'elevated')),
-        created_at INTEGER NOT NULL,
-        UNIQUE(release_id, version)
-      )
-    `),
-    db.prepare(`
-      CREATE TABLE IF NOT EXISTS downloads (
-        release_key TEXT PRIMARY KEY REFERENCES releases(release_key),
-        count INTEGER NOT NULL DEFAULT 0 CHECK (count >= 0),
-        updated_at INTEGER NOT NULL DEFAULT (unixepoch())
-      )
-    `),
-    db.prepare("CREATE INDEX IF NOT EXISTS idx_releases_type_created ON releases(type, created_at DESC)"),
-  ]);
+  const catalogVersion = await CATALOG_VERSION;
+  const state = await db.prepare("SELECT value FROM hivebuzz_meta WHERE key = ?")
+    .bind("catalog_version")
+    .first<{ value: string }>();
+  if (state?.value === catalogVersion) return;
 
+  const releaseKeys = CATALOG_RELEASES.map((record) => record.key);
+  const placeholders = releaseKeys.map(() => "?").join(", ");
   const seedStatements = CATALOG_RELEASES.map((record) => {
     const { manifest } = record;
     return db.prepare(`
@@ -68,6 +54,9 @@ async function initialize() {
         manifest_json = excluded.manifest_json,
         risk_level = excluded.risk_level,
         created_at = excluded.created_at
+      WHERE releases.manifest_json <> excluded.manifest_json
+        OR releases.risk_level <> excluded.risk_level
+        OR releases.created_at <> excluded.created_at
     `).bind(
       record.key,
       manifest.release.id,
@@ -83,10 +72,22 @@ async function initialize() {
       record.addedAt,
     );
   });
+  const counterStatements = releaseKeys.map((releaseKey) => db.prepare(`
+    INSERT INTO downloads (release_key, count, updated_at, window_started_at, window_count)
+    VALUES (?, 0, unixepoch(), 0, 0)
+    ON CONFLICT(release_key) DO NOTHING
+  `).bind(releaseKey));
+
   await db.batch([
-    db.prepare("DELETE FROM downloads WHERE release_key IN (SELECT release_key FROM releases WHERE type <> 'agent')"),
-    db.prepare("DELETE FROM releases WHERE type <> 'agent'"),
+    db.prepare(`DELETE FROM downloads WHERE release_key NOT IN (${placeholders})`).bind(...releaseKeys),
+    db.prepare(`DELETE FROM releases WHERE release_key NOT IN (${placeholders})`).bind(...releaseKeys),
+    ...seedStatements,
+    ...counterStatements,
+    db.prepare(`
+      INSERT INTO hivebuzz_meta (key, value, updated_at)
+      VALUES (?, ?, unixepoch())
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+      WHERE hivebuzz_meta.value <> excluded.value
+    `).bind("catalog_version", catalogVersion),
   ]);
-  if (seedStatements.length) await db.batch(seedStatements);
-  await db.prepare("PRAGMA optimize").run();
 }
