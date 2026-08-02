@@ -1,0 +1,8 @@
+{
+  "name": "source-auditor",
+  "version": "0.8.1",
+  "description": "Checks draft claims against first-party sources before publication.",
+  "agents": ["agents/source-auditor.persona.md"],
+  "skills": ["skills/source-check/SKILL.md"],
+  "mcp": ".mcp.json"
+}

@@ -1,0 +1,56 @@
+name: Register a Buzz agent
+description: Submit a locally scanned, memory-free Agent Snapshot for review.
+title: "Agent submission: "
+labels:
+  - agent-submission
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This request is public. Never include credentials, private keys, memory, private source URLs, or personal data.
+  - type: input
+    id: source
+    attributes:
+      label: Public source URL
+      description: HTTPS source where reviewers can inspect the agent and its license.
+      placeholder: https://github.com/you/your-agent
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: license
+    attributes:
+      label: License
+      options:
+        - MIT
+        - Apache-2.0
+        - CC0-1.0
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Snapshot and scan receipt
+      description: Drag the exact passing .agent.json or .agent.png file and the generated submission receipt into this field.
+      placeholder: Attach both files here.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety declarations
+      options:
+        - label: I exported Agent only and did not include core memory or all memories.
+          required: true
+        - label: The attached snapshot is the exact file represented by the receipt SHA-256.
+          required: true
+        - label: I reviewed the full system prompt and found no secrets, private data, or hidden executable behavior.
+          required: true
+        - label: I understand that passing checks does not guarantee publication or endorsement.
+          required: true

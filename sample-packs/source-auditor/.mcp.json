@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "web-readonly": {
+      "transport": "http",
+      "url": "https://search.example.invalid/mcp",
+      "tools": ["search", "open"]
+    }
+  }
+}

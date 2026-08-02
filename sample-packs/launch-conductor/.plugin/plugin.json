@@ -1,0 +1,8 @@
+{
+  "name": "launch-conductor",
+  "version": "1.0.0",
+  "description": "Coordinates a launch checklist and writes local handoff artifacts.",
+  "agents": ["agents/launch-conductor.persona.md"],
+  "skills": ["skills/launch-plan/SKILL.md"],
+  "hooks": "hooks/hooks.json"
+}

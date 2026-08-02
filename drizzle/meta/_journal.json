@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1785599328344,
+      "tag": "0000_parallel_mystique",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1785650400000,
+      "tag": "0001_release_downloads",
+      "breakpoints": true
+    }
+  ]
+}

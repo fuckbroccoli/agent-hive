@@ -1,0 +1,8 @@
+{
+  "name": "release-scout",
+  "version": "1.2.0",
+  "description": "Turns repository activity into concise, source-linked release notes.",
+  "agents": ["agents/release-scout.persona.md"],
+  "skills": ["skills/release-notes/SKILL.md"],
+  "mcp": ".mcp.json"
+}
