@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ? requestedProtocol
     : host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https";
   const origin = `${protocol}://${host}`;
-  const imageUrl = `${origin}/og.png?v=20260803`;
+  const imageUrl = `${origin}/hivebuzz-social-card-20260803.png`;
 
   return {
     metadataBase: new URL(origin),

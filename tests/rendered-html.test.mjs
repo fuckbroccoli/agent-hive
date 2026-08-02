@@ -59,7 +59,7 @@ test("server-renders the finished HiveBuzz product", async () => {
   assert.match(html, /Contribute_hivebuzz/);
   assert.match(html, /Withdraw_Agent/);
   assert.doesNotMatch(html, /Connect signer|Give Honey|Sign & publish|Recent signed/i);
-  assert.match(html, /<meta property="og:image" content="https?:\/\/[^\"]+\/og\.png\?v=20260803"\/>/);
+  assert.match(html, /<meta property="og:image" content="https?:\/\/[^\"]+\/hivebuzz-social-card-20260803\.png"\/>/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
 
@@ -128,7 +128,7 @@ test("removes disposable starter assets and metadata", async () => {
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   assert.doesNotMatch(packageJson, /nostr-tools/);
   await assert.rejects(access(new URL("../app/_sites-preview/SkeletonPreview.tsx", import.meta.url)));
-  await access(new URL("../public/og.png", import.meta.url));
+  await access(new URL("../public/hivebuzz-social-card-20260803.png", import.meta.url));
   await access(new URL("../public/icon.png", import.meta.url));
   await access(new URL("../public/hive-mark.png", import.meta.url));
   await access(new URL("../public/hivebuzz-guide-dotted.webp", import.meta.url));
