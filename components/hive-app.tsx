@@ -6,7 +6,6 @@ import {
   Bot,
   BookOpen,
   Check,
-  Compass,
   Download,
   ExternalLink,
   FileArchive,
@@ -24,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import type { ArchiveScanResult } from "@/lib/archive-scan";
 import type { AgentSnapshotScanResult } from "@/lib/snapshot-scan";
 import { SiteFooter } from "@/components/site-footer";
@@ -235,14 +234,6 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
       : release));
   };
 
-  const openExploreResults = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLane("all");
-    setCategory("all");
-    setMobileDetail(false);
-    requestAnimationFrame(() => document.getElementById("explore")?.scrollIntoView({ behavior: "smooth", block: "start" }));
-  };
-
   return (
     <div className="site-shell">
       <header className="hero-skin home-skin" id="top">
@@ -250,10 +241,9 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
           <a className="brand" href="#top" aria-label="HiveBuzz home">
             <span className="brand-mark" aria-hidden="true" />
             <span>hivebuzz</span>
-            <small>.xyz · for Buzz</small>
           </a>
           <nav className="topbar-actions" aria-label="Primary navigation">
-            <a className="button button-ghost" href="#explore"><Compass size={16} aria-hidden="true" /> Explore</a>
+            <a className="button button-ghost" href="https://buzz.xyz" target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" /> Buzz</a>
             <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Export guide</Link>
             <Link className="button button-dark" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit agent</Link>
           </nav>
@@ -271,24 +261,11 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
               <span><PackageCheck size={15} aria-hidden="true" /> No auto-run</span>
             </div>
           </div>
-          <form className="hero-search" role="search" onSubmit={openExploreResults}>
-            <Search size={22} aria-hidden="true" />
-            <label className="sr-only" htmlFor="hero-agent-search">Search Buzz agents and packs</label>
-            <input
-              id="hero-agent-search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search agents, packs, or capabilities"
-              autoComplete="off"
-            />
-            {query ? <button className="hero-search-clear" type="button" onClick={() => setQuery("")} aria-label="Clear search"><X size={16} /></button> : null}
-            <button className="hero-search-submit" type="submit">Search</button>
-          </form>
         </section>
       </header>
 
       <main>
-        <section id="explore" className={`hive-workspace ${mobileDetail ? "show-detail" : "show-list"}`} aria-label="Explore Buzz agents and packs">
+        <section className={`hive-workspace ${mobileDetail ? "show-detail" : "show-list"}`} aria-label="Buzz agent library">
           <aside className="catalog-panel">
             <div className="catalog-tools">
               <div className="lane-switch" aria-label="Release type">

@@ -2,8 +2,8 @@ import {
   AlertTriangle,
   Bot,
   Check,
-  Compass,
   Download,
+  ExternalLink,
   FileJson,
   KeyRound,
   LockKeyhole,
@@ -54,10 +54,9 @@ export function SnapshotGuide() {
           <Link className="brand" href="/" aria-label="HiveBuzz home">
             <span className="brand-mark" aria-hidden="true" />
             <span>hivebuzz</span>
-            <small>.xyz · for Buzz</small>
           </Link>
           <nav className="topbar-actions" aria-label="Primary navigation">
-            <Link className="button button-ghost" href="/#explore"><Compass size={16} aria-hidden="true" /> Explore</Link>
+            <a className="button button-ghost" href="https://buzz.xyz" target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" /> Buzz</a>
             <Link className="button button-ghost" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit agent</Link>
           </nav>
         </div>
