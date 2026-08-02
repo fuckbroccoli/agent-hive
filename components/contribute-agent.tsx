@@ -172,7 +172,7 @@ export function ContributeAgent() {
           </Link>
           <nav className="topbar-actions" aria-label="Primary navigation">
             <a className="button button-ghost" href="https://buzz.xyz" target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" /> Buzz</a>
-            <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Export guide</Link>
+            <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Guide</Link>
           </nav>
         </div>
         <section className="subpage-hero contribute-hero">

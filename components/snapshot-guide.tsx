@@ -57,7 +57,7 @@ export function SnapshotGuide() {
           </Link>
           <nav className="topbar-actions" aria-label="Primary navigation">
             <a className="button button-ghost" href="https://buzz.xyz" target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" /> Buzz</a>
-            <Link className="button button-ghost" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit agent</Link>
+            <Link className="button button-ghost" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit</Link>
           </nav>
         </div>
         <section className="subpage-hero guide-hero">

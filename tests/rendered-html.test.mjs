@@ -40,7 +40,7 @@ test("server-renders the finished HiveBuzz product", async () => {
   assert.match(html, /No login/);
   assert.match(html, /0(?:<!-- -->)? downloads/);
   assert.match(html, /Downloads show activity, not safety/);
-  assert.match(html, /Submit agent/);
+  assert.match(html, /> Submit<\/a>/);
   assert.match(html, /Search agents, packs, or capabilities/);
   assert.doesNotMatch(html, /Explore<\/a>|id="explore"|\.xyz · for Buzz/);
   assert.match(html, /All topics/);
@@ -49,7 +49,7 @@ test("server-renders the finished HiveBuzz product", async () => {
   assert.match(html, /Privacy_Protocol/);
   assert.match(html, /Terms_of_Use/);
   assert.match(html, /href="https:\/\/github\.com\/fuckbroccoli\/hivebuzz\/blob\/main\/CONTRIBUTING\.md"/);
-  assert.match(html, /Contribute_Agent/);
+  assert.match(html, /Conbribue_hivebuzz/);
   assert.doesNotMatch(html, /Connect signer|Give Honey|Sign & publish|Recent signed/i);
   assert.match(html, /<meta property="og:image" content="https?:\/\/[^\"]+\/og\.png"\/>/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
@@ -66,7 +66,7 @@ test("server-renders the privacy and terms routes", async () => {
   assert.match(privacyHtml, /Checking System/);
   assert.match(termsHtml, /Download first\. Trust last\./);
   assert.match(termsHtml, /No automatic execution/);
-  assert.match(termsHtml, /Contribute_Agent/);
+  assert.match(termsHtml, /Conbribue_hivebuzz/);
 });
 
 test("server-renders the English Snapshot guide with safety defaults", async () => {

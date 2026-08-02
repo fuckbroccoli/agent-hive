@@ -2295,23 +2295,31 @@ button:disabled {
 
 @media (max-width: 680px) {
   .topbar {
-    height: 62px;
-    padding: 0 16px;
+    align-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    height: auto;
+    min-height: 104px;
+    padding: 10px 14px;
+  }
+
+  .topbar-actions {
+    width: 100%;
   }
 
   .topbar .button {
-    font-size: 0;
+    flex: 1 1 0;
+    font-size: 12px;
+    gap: 5px;
     min-height: 38px;
-    padding: 9px 11px;
+    min-width: 0;
+    padding: 8px 6px;
   }
 
   .topbar .button svg {
-    height: 18px;
-    width: 18px;
-  }
-
-  .topbar-actions .button:first-child {
-    font-size: 0;
+    flex: 0 0 auto;
+    height: 16px;
+    width: 16px;
   }
 
   .home-skin {

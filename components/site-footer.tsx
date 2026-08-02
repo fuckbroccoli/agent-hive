@@ -40,7 +40,7 @@ export function SiteFooter() {
       <nav className="footer-links" aria-label="Footer navigation">
         <Link href="/privacy">Privacy_Protocol</Link>
         <Link href="/terms">Terms_of_Use</Link>
-        <a href="https://github.com/fuckbroccoli/hivebuzz/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" aria-label="Contribute an agent on GitHub">Contribute_Agent</a>
+        <a href="https://github.com/fuckbroccoli/hivebuzz/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" aria-label="Contribute to HiveBuzz on GitHub">Conbribue_hivebuzz</a>
       </nav>
     </footer>
   );
