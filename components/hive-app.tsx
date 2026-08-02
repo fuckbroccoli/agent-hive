@@ -210,10 +210,10 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
   return (
     <div className="site-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Agent Hive home">
-          <span className="brand-mark" aria-hidden="true">ah</span>
-          <span>agent-hive</span>
-          <small>for Buzz</small>
+        <a className="brand" href="#top" aria-label="HiveBuzz home">
+          <span className="brand-mark" aria-hidden="true" />
+          <span>hivebuzz</span>
+          <small>.xyz · for Buzz</small>
         </a>
         <nav className="topbar-actions" aria-label="Primary navigation">
           <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Export guide</Link>
@@ -314,7 +314,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                         <h2>{selected.manifest.release.name}</h2>
                         <p>{selected.manifest.release.summary}</p>
                       </div>
-                      <div className="release-glyph" aria-hidden="true"><span>ah</span></div>
+                      <div className="release-glyph" aria-hidden="true" />
                     </div>
                     <div className="contributor-line">
                       <span>Contributed by {selected.manifest.contributorName ?? "community contributor"}</span>

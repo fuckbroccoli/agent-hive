@@ -121,6 +121,10 @@ button:disabled {
 .release-glyph {
   align-items: center;
   background: var(--accent);
+  background-image: url("/hive-mark.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   border: 1px solid var(--ink);
   display: inline-flex;
   justify-content: center;
@@ -128,9 +132,7 @@ button:disabled {
 
 .brand-mark {
   border-radius: 8px;
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 11px;
-  font-weight: 760;
+  flex: 0 0 auto;
   height: 31px;
   width: 31px;
 }
@@ -601,12 +603,6 @@ button:disabled {
   height: 78px;
   transform: rotate(3deg);
   width: 78px;
-}
-
-.release-glyph span {
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 20px;
-  font-weight: 780;
 }
 
 .contributor-line {

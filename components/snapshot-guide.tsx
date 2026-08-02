@@ -50,10 +50,10 @@ export function SnapshotGuide() {
   return (
     <div className="site-shell guide-shell">
       <header className="topbar">
-        <Link className="brand" href="/" aria-label="Agent Hive home">
-          <span className="brand-mark" aria-hidden="true">ah</span>
-          <span>agent-hive</span>
-          <small>for Buzz</small>
+        <Link className="brand" href="/" aria-label="HiveBuzz home">
+          <span className="brand-mark" aria-hidden="true" />
+          <span>hivebuzz</span>
+          <small>.xyz · for Buzz</small>
         </Link>
         <nav className="topbar-actions" aria-label="Primary navigation">
           <Link className="button button-ghost" href="/"><ArrowLeft size={16} aria-hidden="true" /> Library</Link>

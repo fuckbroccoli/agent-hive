@@ -28,6 +28,8 @@ test("server-renders the finished Agent Hive product", async () => {
   assert.match(html, /<title>Agent Hive — Buzz agents, ready to import\.<\/title>/i);
   assert.match(html, /Buzz agents,/);
   assert.match(html, /ready to import\./);
+  assert.match(html, /hivebuzz/);
+  assert.match(html, /\.xyz · for Buzz/);
   assert.match(html, /Quiet Researcher/);
   assert.match(html, /Release Scout/);
   assert.match(html, /No login/);
@@ -86,6 +88,7 @@ test("removes disposable starter assets and metadata", async () => {
   await assert.rejects(access(new URL("../app/_sites-preview/SkeletonPreview.tsx", import.meta.url)));
   await access(new URL("../public/og.png", import.meta.url));
   await access(new URL("../public/icon.png", import.meta.url));
+  await access(new URL("../public/hive-mark.png", import.meta.url));
 });
 
 test("reference Persona Packs are immutable, bounded archives", async () => {
