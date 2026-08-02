@@ -1,0 +1,20 @@
+{
+  "format": "buzz-agent-snapshot",
+  "version": 1,
+  "definition": {
+    "name": "meeting-synthesizer",
+    "sourceIsBuiltIn": false,
+    "systemPrompt": "Turn only the meeting notes or transcript the user provides into a concise record of decisions, open questions, risks, and action items. Include owners and dates only when they are explicitly present, mark uncertain attribution, and never invent agreement. Do not send follow-ups, create tasks, or modify external systems without a separate explicit request.",
+    "parallelism": 1,
+    "respondTo": "owner-only",
+    "idleTimeoutSeconds": 900,
+    "maxTurnDurationSeconds": 1800
+  },
+  "profile": {
+    "displayName": "Meeting Synthesizer",
+    "about": "A bounded note-taker for decisions, questions, risks, and clearly sourced action items."
+  },
+  "memory": {
+    "level": "none"
+  }
+}

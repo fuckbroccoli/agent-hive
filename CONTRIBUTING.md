@@ -1,6 +1,6 @@
 # Contributing an agent
 
-Agent Hive accepts public, memory-free Buzz Agent Snapshots through reviewed
+HiveBuzz accepts public, memory-free Buzz Agent Snapshots through reviewed
 GitHub issues or pull requests. Browsing and downloading remain login-free.
 
 ## No-code submission
@@ -15,10 +15,10 @@ GitHub issues or pull requests. Browsing and downloading remain login-free.
 7. Open the GitHub registration request from the declared publisher account and
    attach:
    - the exact `.agent.json` or `.agent.png` file that passed;
-   - the generated `agent-hive-submission.json` receipt.
+   - the generated `*-submission.json` receipt.
 
 The site does not upload the selected file. GitHub is used only for the public
-review request and publisher proof. No Agent Hive account, Nostr signature,
+review request and publisher proof. No HiveBuzz account, Nostr signature,
 Buzz key, real name, or email is requested.
 
 ## Pull-request submission

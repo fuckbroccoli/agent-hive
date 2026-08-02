@@ -1,4 +1,4 @@
-export const CATALOG_SCHEMA = "org.buzz.agent-hive.catalog/v1";
+export const CATALOG_SCHEMA = "xyz.hivebuzz.catalog/v1";
 
 export type FilesystemAccess = "none" | "read-only" | "project-write";
 export type RiskLevel = "low" | "review" | "elevated";

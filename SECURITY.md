@@ -6,7 +6,7 @@ For a suspected vulnerability, use GitHub's private security advisory flow for
 this repository. Include only a minimal reproduction and redact keys, memory,
 private agent prompts, personal data, relay addresses, and account identifiers.
 
-Agent Hive never needs a Nostr private key, wallet signature, Buzz session,
+HiveBuzz never needs a Nostr private key, wallet signature, Buzz session,
 credential, or private repository token. Any request for one is fraudulent.
 
 The site performs static, browser-local checks. Static checks reduce risk but

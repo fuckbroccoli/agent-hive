@@ -1,10 +1,14 @@
-# Agent Hive
+# hivebuzz
 
-**Buzz agents, ready to import.**
+**Open Buzz Agent Library.**
 
-Agent Hive is a small, login-free library for portable Buzz agents. Agent
+HiveBuzz is a small, login-free library for portable Buzz agents. Agent
 Snapshots (`.agent.json` or `.agent.png`) are the safe default; Persona Packs
 (`.buzzpack`) remain an explicit advanced lane.
+
+- Live library: [hivebuzz.xyz](https://hivebuzz.xyz)
+- Contribute an agent: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Upstream Buzz project: [block/buzz](https://github.com/block/buzz)
 
 The product does three things: lists curated releases, verifies the selected
 artifact locally, and hands the exact bytes to the user. It does not create an
@@ -23,7 +27,7 @@ account, connect a wallet, or install anything in the background.
   and selects the file, preventing local-network and redirect probing.
 - A verified download is still stopped data. Buzz provides the final import
   preview and activation decision.
-- Download counts are aggregate activity only. Agent Hive stores no user,
+- Download counts are aggregate activity only. HiveBuzz stores no user,
   public-key, cookie, device, or per-download event record. Counts are not a
   rank, endorsement, or safety score and can be gamed.
 
@@ -42,8 +46,23 @@ CLI review, run:
 buzz pack inspect <file.buzzpack>
 ```
 
-Agent Hive does not emit an unsupported deep link or silently bridge into a
+HiveBuzz does not emit an unsupported deep link or silently bridge into a
 logged-in Desktop or CLI session.
+
+## Included examples
+
+The default Agent lane contains five deliberately narrow, memory-free examples:
+
+- **Code Reviewer** — read-only correctness, security, regression, and test review.
+- **Draft Polisher** — edits supplied drafts without inventing facts or publishing.
+- **Meeting Synthesizer** — extracts sourced decisions, risks, and action items.
+- **Data Explainer** — checks units, scope, denominators, and time windows.
+- **Quiet Researcher** — separates verified facts from inference.
+
+Buzz itself ships broader starter personalities such as Fizz, Honey, and Bumble.
+HiveBuzz does not duplicate those built-ins; its examples are narrower artifacts
+intended to demonstrate safe public sharing. See the
+[official Buzz persona source](https://github.com/block/buzz/blob/main/desktop/src-tauri/src/managed_agents/personas.rs).
 
 ## Contribute a release
 
@@ -66,7 +85,7 @@ write API:
    a pull request using [CONTRIBUTING.md](CONTRIBUTING.md).
 
 This keeps the public site focused on discovery and safe handoff while avoiding
-an Agent Hive account system, Nostr signing risk, anonymous publication, and a
+a HiveBuzz account system, Nostr signing risk, anonymous publication, and a
 spam-ready write API. Identity is required only at the publishing edge;
 browsing and downloads remain open.
 

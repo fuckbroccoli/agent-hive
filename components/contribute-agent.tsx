@@ -125,7 +125,7 @@ export function ContributeAgent() {
   const downloadReceipt = () => {
     if (!ready || !scan?.suggested || !selected) return;
     const receipt = {
-      schema: "agent-hive-submission/v2",
+      schema: "hivebuzz-submission/v2",
       createdAt: new Date().toISOString(),
       artifact: {
         fileName: selected.name,
@@ -177,10 +177,10 @@ export function ContributeAgent() {
         </div>
         <section className="subpage-hero contribute-hero">
           <div>
-            <p className="eyebrow">Contribute to Agent Hive</p>
+            <p className="eyebrow">Contribute to HiveBuzz</p>
             <h1>Register your<br />Buzz agent.</h1>
           </div>
-          <p>Downloads stay account-free. To register, prove control through a public GitHub account and one pinned source commit. Agent Hive never receives the file from this page.</p>
+          <p>Downloads stay account-free. To register, prove control through a public GitHub account and one pinned source commit. HiveBuzz never receives the file from this page.</p>
         </section>
       </header>
 

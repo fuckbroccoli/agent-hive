@@ -7,7 +7,8 @@ import { recordFromManifest, releaseKeyFor, validateManifest } from "../lib/hive
 import { scanAgentSnapshot } from "../lib/snapshot-scan";
 
 test("accepts every bounded catalog release with a stable key", () => {
-  assert.equal(CATALOG_RELEASES.length, 4);
+  assert.equal(CATALOG_RELEASES.length, 8);
+  assert.equal(CATALOG_RELEASES.filter((release) => release.manifest.type === "agent").length, 5);
   assert.equal(new Set(CATALOG_RELEASES.map((release) => release.key)).size, CATALOG_RELEASES.length);
 
   for (const release of CATALOG_RELEASES) {

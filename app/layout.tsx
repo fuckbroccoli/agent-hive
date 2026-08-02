@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const incoming = await headers();
-  const requestedHost = (incoming.get("x-forwarded-host") ?? incoming.get("host") ?? "agent-hive.openai.site").split(",")[0].trim();
-  const host = /^[a-z0-9.-]+(?::\d+)?$/i.test(requestedHost) ? requestedHost : "agent-hive.openai.site";
+  const requestedHost = (incoming.get("x-forwarded-host") ?? incoming.get("host") ?? "hivebuzz.xyz").split(",")[0].trim();
+  const host = /^[a-z0-9.-]+(?::\d+)?$/i.test(requestedHost) ? requestedHost : "hivebuzz.xyz";
   const requestedProtocol = (incoming.get("x-forwarded-proto") ?? "").split(",")[0].trim();
   const protocol = requestedProtocol === "http" || requestedProtocol === "https"
     ? requestedProtocol
@@ -26,22 +26,22 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(origin),
-    title: "Agent Hive — Buzz agents, ready to import.",
+    title: "hivebuzz - Open Buzz Agent Library",
     description: "A login-free library of locally verified Buzz Agent Snapshots and Persona Packs.",
-    applicationName: "Agent Hive",
+    applicationName: "hivebuzz",
     keywords: ["Buzz", "AI agents", "Agent Snapshots", "Persona Packs", "open library"],
     icons: { icon: "/icon.png", apple: "/icon.png" },
     openGraph: {
-      title: "Agent Hive",
-      description: "Buzz agents, ready to import.",
+      title: "hivebuzz - Open Buzz Agent Library",
+      description: "A login-free library of locally verified Buzz agents.",
       type: "website",
       url: origin,
-      images: [{ url: imageUrl, width: 1200, height: 630, alt: "Agent Hive — Buzz agents, ready to import." }],
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: "hivebuzz - Open Buzz Agent Library" }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Agent Hive",
-      description: "Buzz agents, ready to import.",
+      title: "hivebuzz - Open Buzz Agent Library",
+      description: "A login-free library of locally verified Buzz agents.",
       images: [imageUrl],
     },
   };

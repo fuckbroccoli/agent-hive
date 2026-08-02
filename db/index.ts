@@ -5,7 +5,7 @@ let initialization: Promise<void> | null = null;
 export async function getD1() {
   const { env } = await import("cloudflare:workers");
   const bindings = env as unknown as { DB?: D1Database };
-  if (!bindings.DB) throw new Error("Agent Hive database is unavailable.");
+  if (!bindings.DB) throw new Error("HiveBuzz database is unavailable.");
   return bindings.DB;
 }
 

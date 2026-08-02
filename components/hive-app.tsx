@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { ArchiveScanResult } from "@/lib/archive-scan";
 import type { AgentSnapshotScanResult } from "@/lib/snapshot-scan";
 import { SiteFooter } from "@/components/site-footer";
@@ -165,6 +165,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
   const [mobileDetail, setMobileDetail] = useState(false);
   const [installRelease, setInstallRelease] = useState<ReleaseRecord | null>(null);
   const [notice, setNotice] = useState<NoticeState | null>(null);
+  const catalogRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -234,6 +235,14 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
       : release));
   };
 
+  const openSearchResults = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLane("all");
+    setCategory("all");
+    setMobileDetail(false);
+    requestAnimationFrame(() => catalogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
   return (
     <div className="site-shell">
       <header className="hero-skin home-skin" id="top">
@@ -255,17 +264,30 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
           </div>
           <div className="intro-copy">
             <p>Browse without an account. Verify exact bytes in your browser. Drag a stopped copy into Buzz Desktop.</p>
-            <div className="principles" aria-label="Agent Hive principles">
+            <div className="principles" aria-label="HiveBuzz principles">
               <span><LockKeyhole size={15} aria-hidden="true" /> No login</span>
               <span><ShieldCheck size={15} aria-hidden="true" /> Local verification</span>
               <span><PackageCheck size={15} aria-hidden="true" /> No auto-run</span>
             </div>
           </div>
+          <form className="hero-search" role="search" onSubmit={openSearchResults}>
+            <Search size={22} aria-hidden="true" />
+            <label className="sr-only" htmlFor="hero-agent-search">Search HiveBuzz agents and packs</label>
+            <input
+              id="hero-agent-search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search agents, packs, or capabilities"
+              autoComplete="off"
+            />
+            {query ? <button className="hero-search-clear" type="button" onClick={() => setQuery("")} aria-label="Clear search"><X size={16} /></button> : null}
+            <button className="hero-search-submit" type="submit">Search</button>
+          </form>
         </section>
       </header>
 
       <main>
-        <section className={`hive-workspace ${mobileDetail ? "show-detail" : "show-list"}`} aria-label="Buzz agent library">
+        <section ref={catalogRef} className={`hive-workspace ${mobileDetail ? "show-detail" : "show-list"}`} aria-label="Buzz agent library">
           <aside className="catalog-panel">
             <div className="catalog-tools">
               <div className="lane-switch" aria-label="Release type">
@@ -401,7 +423,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                       ) : (
                         <CheckRow icon={<FileArchive size={18} />} title="Archive inspected locally" detail="Paths, expansion size, secrets, commands, MCP tools, and hooks are checked before download." />
                       )}
-                      <CheckRow icon={<PackageCheck size={18} />} title="Nothing auto-runs" detail="Agent Hive only hands off verified bytes. Buzz shows the final import review." />
+                      <CheckRow icon={<PackageCheck size={18} />} title="Nothing auto-runs" detail="HiveBuzz only hands off verified bytes. Buzz shows the final import review." />
                     </div>
                   </div>
 
@@ -479,7 +501,7 @@ function toScanView(result: AgentSnapshotScanResult | ArchiveScanResult): ScanVi
 
 function fileNameFromUrl(url: string) {
   try {
-    const path = new URL(url, "https://agent-hive.invalid").pathname;
+    const path = new URL(url, "https://hivebuzz.invalid").pathname;
     return decodeURIComponent(path.split("/").pop() ?? "artifact");
   } catch {
     return "artifact";
@@ -631,7 +653,7 @@ function InstallDialog({
       tone: "success",
       message: type === "agent"
         ? "Verified Agent downloaded. Drag it into Buzz Desktop's Agents page."
-        : "Verified Pack downloaded. Agent Hive did not execute it.",
+        : "Verified Pack downloaded. HiveBuzz did not execute it.",
     });
     setBusy(false);
     onClose();
@@ -645,7 +667,7 @@ function InstallDialog({
             <ShieldCheck size={21} aria-hidden="true" />
             <div>
               <strong>{type === "agent" ? "Import behavior, not identity" : "Review before enabling"}</strong>
-              <p>{type === "agent" ? "Agent Hive verifies the snapshot. Buzz Desktop previews it and creates a fresh private identity on import." : "Agent Hive verifies and hands off exact bytes. Hooks and tools remain a separate Buzz decision."}</p>
+              <p>{type === "agent" ? "HiveBuzz verifies the snapshot. Buzz Desktop previews it and creates a fresh private identity on import." : "HiveBuzz verifies and hands off exact bytes. Hooks and tools remain a separate Buzz decision."}</p>
             </div>
           </div>
 

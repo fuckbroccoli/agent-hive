@@ -283,9 +283,9 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
     errors.push("Snapshot memory policy is missing.");
   } else {
     onlyKeys(memory, ["level", "entries"], "Snapshot memory", errors);
-    if (memory.level !== "none") errors.push("Public Agent Hive snapshots must be exported with memory set to None.");
+    if (memory.level !== "none") errors.push("Public HiveBuzz snapshots must be exported with memory set to None.");
     if (memory.entries !== undefined && (!Array.isArray(memory.entries) || memory.entries.length > 0)) {
-      errors.push("Public Agent Hive snapshots cannot contain plaintext memory entries.");
+      errors.push("Public HiveBuzz snapshots cannot contain plaintext memory entries.");
     }
   }
 

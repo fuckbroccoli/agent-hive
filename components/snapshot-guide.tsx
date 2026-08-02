@@ -19,13 +19,13 @@ import { SiteFooter } from "@/components/site-footer";
 const exportSteps = [
   ["Open Agents", "In Buzz Desktop, open Agents from the left sidebar."],
   ["Choose Share", "Open the ··· menu on the agent you made, then choose Share."],
-  ["Open Export Agent", "Select Export Agent at the bottom. Share to catalog is separate from Agent Hive and can stay off."],
+  ["Open Export Agent", "Select Export Agent at the bottom. Share to catalog is separate from HiveBuzz and can stay off."],
   ["Choose Agent only", "Set Memories to Agent only. Never publish core memory or all memories."],
   ["Save as JSON", "JSON is the reviewable default. Select Export and save the .agent.json file."],
 ] as const;
 
 const importSteps = [
-  ["Choose an agent", "Select an agent in Agent Hive and choose Get agent."],
+  ["Choose an agent", "Select an agent in HiveBuzz and choose Get agent."],
   ["Review the local scan", "Check SHA-256, size, memory, remote-avatar, allowlist, and secret results."],
   ["Download verified bytes", "Confirm both safety acknowledgements, then download the .agent.json or .agent.png file."],
   ["Drop it into Buzz", "Drag the file onto Buzz Desktop's Agents page."],
@@ -103,10 +103,10 @@ export function SnapshotGuide() {
           <section className="guide-card" aria-labelledby="import-title">
             <div className="guide-card-heading">
               <span className="guide-icon"><Download size={20} aria-hidden="true" /></span>
-              <div><p className="eyebrow">From Agent Hive to Buzz</p><h2 id="import-title">Import an agent</h2></div>
+              <div><p className="eyebrow">From HiveBuzz to Buzz</p><h2 id="import-title">Import an agent</h2></div>
             </div>
             <div className="path-strip" aria-label="Import path">
-              Agent Hive <span>→</span> Verify <span>→</span> Download <span>→</span> Drop into Agents
+              HiveBuzz <span>→</span> Verify <span>→</span> Download <span>→</span> Drop into Agents
             </div>
             <StepList steps={importSteps} />
           </section>
@@ -142,11 +142,11 @@ export function SnapshotGuide() {
 
         <section className="privacy-section" aria-labelledby="privacy-title">
           <div>
-            <p className="eyebrow">Agent Hive security boundary</p>
+            <p className="eyebrow">HiveBuzz security boundary</p>
             <h2 id="privacy-title">What the site never does</h2>
           </div>
           <div className="privacy-grid">
-            <div><LockKeyhole size={20} /><strong>No login or signing</strong><p>No Nostr key, private key, wallet, or Agent Hive account is required.</p></div>
+            <div><LockKeyhole size={20} /><strong>No login or signing</strong><p>No Nostr key, private key, wallet, or HiveBuzz account is required.</p></div>
             <div><MonitorDown size={20} /><strong>No background install</strong><p>The site cannot access your Buzz session or import a file automatically.</p></div>
             <div><PackageCheck size={20} /><strong>No auto-run</strong><p>Verified files remain stopped data. You decide what runs inside Buzz.</p></div>
             <div><KeyRound size={20} /><strong>No personal download log</strong><p>Only an aggregate release count is stored—never a user, key, cookie, device, or per-download event.</p></div>
@@ -164,7 +164,7 @@ export function SnapshotGuide() {
           </div>
           <div className="guide-note">
             <Bot size={20} aria-hidden="true" />
-            <div><h2>Is PNG safe?</h2><p>Agent Hive restricts PNG metadata to the Buzz snapshot channel and rejects memory-bearing payloads. JSON remains the better public-review format.</p></div>
+            <div><h2>Is PNG safe?</h2><p>HiveBuzz restricts PNG metadata to the Buzz snapshot channel and rejects memory-bearing payloads. JSON remains the better public-review format.</p></div>
           </div>
         </section>
 

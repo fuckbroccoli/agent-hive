@@ -18,31 +18,37 @@ async function render(pathname = "/") {
   );
 }
 
-test("server-renders the finished Agent Hive product", async () => {
+test("server-renders the finished HiveBuzz product", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
   assert.match(html, /<html lang="en">/i);
-  assert.match(html, /<title>Agent Hive — Buzz agents, ready to import\.<\/title>/i);
+  assert.match(html, /<title>hivebuzz - Open Buzz Agent Library<\/title>/i);
   assert.match(html, /Buzz agents,/);
   assert.match(html, /ready to import\./);
   assert.match(html, /hivebuzz/);
   assert.match(html, /href="https:\/\/buzz\.xyz"/);
   assert.match(html, /> Buzz<\/a>/);
   assert.match(html, /Quiet Researcher/);
+  assert.match(html, /Code Reviewer/);
+  assert.match(html, /Draft Polisher/);
+  assert.match(html, /Meeting Synthesizer/);
+  assert.match(html, /Data Explainer/);
   assert.match(html, /Release Scout/);
   assert.match(html, /No login/);
   assert.match(html, /0(?:<!-- -->)? downloads/);
   assert.match(html, /Downloads show activity, not safety/);
   assert.match(html, /Submit agent/);
-  assert.doesNotMatch(html, /Explore<\/a>|id="explore"|Search agents, packs, or capabilities|\.xyz · for Buzz/);
+  assert.match(html, /Search agents, packs, or capabilities/);
+  assert.doesNotMatch(html, /Explore<\/a>|id="explore"|\.xyz · for Buzz/);
   assert.match(html, /All topics/);
   assert.match(html, /Research/);
   assert.match(html, /Read the full export and import guide/);
   assert.match(html, /Privacy_Protocol/);
   assert.match(html, /Terms_of_Use/);
+  assert.match(html, /href="https:\/\/github\.com\/fuckbroccoli\/hivebuzz\/blob\/main\/CONTRIBUTING\.md"/);
   assert.match(html, /Contribute_Agent/);
   assert.doesNotMatch(html, /Connect signer|Give Honey|Sign & publish|Recent signed/i);
   assert.match(html, /<meta property="og:image" content="https?:\/\/[^\"]+\/og\.png"\/>/);
@@ -83,14 +89,14 @@ test("server-renders the local-first agent registration flow", async () => {
   const html = await response.text();
   assert.match(html, /Register your/);
   assert.match(html, /hero-skin submit-skin/);
-  assert.match(html, /Agent Hive never receives the file from this page/);
+  assert.match(html, /HiveBuzz never receives the file from this page/);
   assert.match(html, /Local scan first/);
   assert.match(html, /Public GitHub identity/);
   assert.match(html, /GitHub handle/);
   assert.match(html, /Source commit/);
   assert.match(html, /Open downloads/);
   assert.match(html, /Open GitHub request/);
-  assert.doesNotMatch(html, /Nostr sign|Connect wallet|Upload to Agent Hive/i);
+  assert.doesNotMatch(html, /Nostr sign|Connect wallet|Upload to HiveBuzz/i);
 });
 
 test("reference Agent Snapshot is public-safe and digest pinned", async () => {
@@ -115,8 +121,8 @@ test("removes disposable starter assets and metadata", async () => {
   await access(new URL("../public/og.png", import.meta.url));
   await access(new URL("../public/icon.png", import.meta.url));
   await access(new URL("../public/hive-mark.png", import.meta.url));
-  await access(new URL("../public/agent-hive-guide-dotted.webp", import.meta.url));
-  await access(new URL("../public/agent-hive-submit-dotted.webp", import.meta.url));
+  await access(new URL("../public/hivebuzz-guide-dotted.webp", import.meta.url));
+  await access(new URL("../public/hivebuzz-submit-dotted.webp", import.meta.url));
 });
 
 test("reference Persona Packs are immutable, bounded archives", async () => {
