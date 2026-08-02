@@ -164,27 +164,28 @@ export function ContributeAgent() {
 
   return (
     <div className="site-shell guide-shell">
-      <header className="topbar">
-        <Link className="brand" href="/" aria-label="HiveBuzz home">
-          <span className="brand-mark" aria-hidden="true" />
-          <span>hivebuzz</span>
-          <small>.xyz · for Buzz</small>
-        </Link>
-        <nav className="topbar-actions" aria-label="Primary navigation">
-          <Link className="button button-ghost" href="/"><ArrowLeft size={16} aria-hidden="true" /> Library</Link>
-          <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Export guide</Link>
-        </nav>
-      </header>
-
-      <main className="contribute-main">
-        <section className="contribute-hero">
+      <header className="hero-skin submit-skin">
+        <div className="topbar skin-topbar">
+          <Link className="brand" href="/" aria-label="HiveBuzz home">
+            <span className="brand-mark" aria-hidden="true" />
+            <span>hivebuzz</span>
+            <small>.xyz · for Buzz</small>
+          </Link>
+          <nav className="topbar-actions" aria-label="Primary navigation">
+            <Link className="button button-ghost" href="/"><ArrowLeft size={16} aria-hidden="true" /> Library</Link>
+            <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Export guide</Link>
+          </nav>
+        </div>
+        <section className="subpage-hero contribute-hero">
           <div>
             <p className="eyebrow">Contribute to Agent Hive</p>
             <h1>Register your<br />Buzz agent.</h1>
           </div>
           <p>Downloads stay account-free. To register, prove control through a public GitHub account and one pinned source commit. Agent Hive never receives the file from this page.</p>
         </section>
+      </header>
 
+      <main className="contribute-main">
         <section className="contribution-boundary" aria-label="Submission security boundary">
           <div><LockKeyhole size={20} /><span><strong>Public GitHub identity</strong>The issue author must match the declared publisher. No Nostr or Buzz key is requested.</span></div>
           <div><ShieldCheck size={20} /><span><strong>Local scan first</strong>The selected file never leaves this browser.</span></div>

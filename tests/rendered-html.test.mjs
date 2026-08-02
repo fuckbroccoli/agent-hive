@@ -49,6 +49,7 @@ test("server-renders the English Snapshot guide with safety defaults", async () 
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Export safely/);
+  assert.match(html, /hero-skin guide-skin/);
   assert.equal(html.includes("Agent only + JSON"), true);
   assert.match(html, /Export Agent/);
   assert.match(html, /No login or signing/);
@@ -62,6 +63,7 @@ test("server-renders the local-first agent registration flow", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Register your/);
+  assert.match(html, /hero-skin submit-skin/);
   assert.match(html, /Agent Hive never receives the file from this page/);
   assert.match(html, /Local scan first/);
   assert.match(html, /Public GitHub identity/);
@@ -94,6 +96,8 @@ test("removes disposable starter assets and metadata", async () => {
   await access(new URL("../public/og.png", import.meta.url));
   await access(new URL("../public/icon.png", import.meta.url));
   await access(new URL("../public/hive-mark.png", import.meta.url));
+  await access(new URL("../public/agent-hive-guide-dotted.webp", import.meta.url));
+  await access(new URL("../public/agent-hive-submit-dotted.webp", import.meta.url));
 });
 
 test("reference Persona Packs are immutable, bounded archives", async () => {

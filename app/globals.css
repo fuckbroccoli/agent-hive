@@ -192,13 +192,8 @@ button:disabled {
   padding: 12px 18px;
 }
 
-.home-skin {
+.hero-skin {
   background-color: #071b2b;
-  background-image:
-    linear-gradient(90deg, rgba(5, 20, 29, 0.97) 0%, rgba(5, 20, 29, 0.84) 29%, rgba(5, 20, 29, 0.22) 61%, rgba(5, 20, 29, 0.03) 100%),
-    linear-gradient(0deg, rgba(30, 25, 10, 0.58) 0%, transparent 42%),
-    linear-gradient(180deg, rgba(244, 185, 66, 0.1) 0%, transparent 36%),
-    url("/agent-hive-hero-dotted.webp");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -209,43 +204,66 @@ button:disabled {
   position: relative;
 }
 
-.home-topbar {
+.home-skin {
+  background-image:
+    linear-gradient(90deg, rgba(5, 20, 29, 0.97) 0%, rgba(5, 20, 29, 0.84) 29%, rgba(5, 20, 29, 0.22) 61%, rgba(5, 20, 29, 0.03) 100%),
+    linear-gradient(0deg, rgba(30, 25, 10, 0.58) 0%, transparent 42%),
+    linear-gradient(180deg, rgba(244, 185, 66, 0.1) 0%, transparent 36%),
+    url("/agent-hive-hero-dotted.webp");
+}
+
+.guide-skin {
+  background-image:
+    linear-gradient(90deg, rgba(5, 20, 29, 0.97) 0%, rgba(5, 20, 29, 0.83) 30%, rgba(5, 20, 29, 0.18) 61%, rgba(5, 20, 29, 0.02) 100%),
+    linear-gradient(0deg, rgba(30, 25, 10, 0.54) 0%, transparent 42%),
+    url("/agent-hive-guide-dotted.webp");
+}
+
+.submit-skin {
+  background-image:
+    linear-gradient(90deg, rgba(5, 20, 29, 0.97) 0%, rgba(5, 20, 29, 0.82) 30%, rgba(5, 20, 29, 0.16) 61%, rgba(5, 20, 29, 0.02) 100%),
+    linear-gradient(0deg, rgba(30, 25, 10, 0.56) 0%, transparent 42%),
+    url("/agent-hive-submit-dotted.webp");
+}
+
+.skin-topbar {
   color: #fff0cf;
   position: relative;
   z-index: 2;
 }
 
-.home-skin .brand {
+.hero-skin .brand {
   color: #fff0cf;
 }
 
-.home-skin .brand small {
+.hero-skin .brand small {
   color: rgba(255, 240, 207, 0.72);
 }
 
-.home-skin .brand-mark {
+.hero-skin .brand-mark {
   border-color: rgba(255, 240, 207, 0.78);
 }
 
-.home-skin .button-ghost {
+.hero-skin .button-ghost {
   color: #fff0cf;
 }
 
-.home-skin .button-ghost:hover {
+.hero-skin .button-ghost:hover {
   background: rgba(255, 240, 207, 0.13);
 }
 
-.home-skin .button-dark {
+.hero-skin .button-dark {
   background: #f3c44f;
   border-color: #f3c44f;
   color: #171714;
 }
 
-.home-skin .button-dark:hover:not(:disabled) {
+.hero-skin .button-dark:hover:not(:disabled) {
   background: #ffd873;
 }
 
-.intro {
+.intro,
+.subpage-hero {
   align-items: flex-start;
   display: flex;
   flex-direction: column;
@@ -259,12 +277,14 @@ button:disabled {
   width: 100%;
 }
 
-.intro > * {
+.intro > *,
+.subpage-hero > * {
   position: relative;
   z-index: 1;
 }
 
-.intro .eyebrow {
+.intro .eyebrow,
+.subpage-hero .eyebrow {
   color: #f6c96f;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55);
 }
@@ -997,27 +1017,27 @@ button:disabled {
 }
 
 .guide-hero {
-  align-items: end;
-  display: grid;
-  gap: 60px;
-  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
-  padding: 28px 0 56px;
+  gap: 28px;
 }
 
 .guide-hero h1 {
+  color: #fff0cf;
   font-size: clamp(44px, 6vw, 76px);
   font-weight: 580;
   letter-spacing: -0.065em;
   line-height: 0.96;
   margin: 0;
+  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.48);
 }
 
 .guide-hero-copy {
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid #f3c44f;
+  max-width: 590px;
   padding: 4px 0 4px 20px;
 }
 
 .guide-hero-copy p {
+  color: #fff0cf;
   font-size: clamp(21px, 2.4vw, 30px);
   font-weight: 650;
   letter-spacing: -0.04em;
@@ -1025,7 +1045,7 @@ button:disabled {
 }
 
 .guide-hero-copy span {
-  color: var(--muted);
+  color: rgba(255, 240, 207, 0.82);
   font-size: 13px;
   line-height: 1.55;
 }
@@ -1339,28 +1359,28 @@ button:disabled {
 }
 
 .contribute-hero {
-  align-items: end;
-  display: grid;
-  gap: 72px;
-  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
-  padding: 28px 0 48px;
+  gap: 28px;
 }
 
 .contribute-hero h1 {
+  color: #fff0cf;
   font-size: clamp(48px, 6vw, 78px);
   font-weight: 580;
   letter-spacing: -0.065em;
   line-height: 0.94;
   margin: 0;
+  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.48);
 }
 
 .contribute-hero > p {
-  border-left: 3px solid var(--accent);
-  color: var(--muted);
+  border-left: 3px solid #f3c44f;
+  color: rgba(255, 240, 207, 0.84);
   font-size: 15px;
   line-height: 1.65;
   margin: 0 0 4px;
+  max-width: 620px;
   padding: 4px 0 4px 20px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.58);
 }
 
 .contribution-boundary {
@@ -1991,7 +2011,13 @@ button:disabled {
     background-position: 62% center;
   }
 
-  .intro {
+  .guide-skin,
+  .submit-skin {
+    background-position: 68% center;
+  }
+
+  .intro,
+  .subpage-hero {
     min-height: 560px;
     padding: 52px 42px;
   }
@@ -2038,14 +2064,13 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .guide-hero,
   .privacy-section,
-  .contribute-hero,
   .submission-finish {
     grid-template-columns: 1fr;
   }
 
-  .guide-hero {
+  .guide-hero,
+  .contribute-hero {
     align-items: start;
     gap: 30px;
   }
@@ -2062,11 +2087,6 @@ button:disabled {
 
   .privacy-section {
     gap: 24px;
-  }
-
-  .contribute-hero {
-    align-items: start;
-    gap: 30px;
   }
 
   .submission-finish {
@@ -2108,7 +2128,24 @@ button:disabled {
     background-position: 64% center;
   }
 
-  .intro {
+  .guide-skin {
+    background-image:
+      linear-gradient(90deg, rgba(4, 17, 29, 0.96) 0%, rgba(4, 17, 29, 0.76) 57%, rgba(4, 17, 29, 0.12) 100%),
+      linear-gradient(0deg, rgba(4, 17, 29, 0.7) 0%, transparent 48%),
+      url("/agent-hive-guide-dotted.webp");
+    background-position: 70% center;
+  }
+
+  .submit-skin {
+    background-image:
+      linear-gradient(90deg, rgba(4, 17, 29, 0.96) 0%, rgba(4, 17, 29, 0.76) 57%, rgba(4, 17, 29, 0.12) 100%),
+      linear-gradient(0deg, rgba(4, 17, 29, 0.7) 0%, transparent 48%),
+      url("/agent-hive-submit-dotted.webp");
+    background-position: 70% center;
+  }
+
+  .intro,
+  .subpage-hero {
     gap: 26px;
     min-height: 570px;
     padding: 42px 20px 38px;
@@ -2195,10 +2232,6 @@ button:disabled {
     padding: 30px 16px 64px;
   }
 
-  .contribute-hero {
-    padding: 22px 2px 38px;
-  }
-
   .contribute-hero h1 {
     font-size: clamp(40px, 12vw, 58px);
   }
@@ -2239,10 +2272,6 @@ button:disabled {
 
   .submission-notes > div:last-child {
     padding-left: 8px;
-  }
-
-  .guide-hero {
-    padding: 22px 2px 38px;
   }
 
   .guide-hero h1 {

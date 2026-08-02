@@ -221,8 +221,8 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
 
   return (
     <div className="site-shell">
-      <header className="home-skin" id="top">
-        <div className="topbar home-topbar">
+      <header className="hero-skin home-skin" id="top">
+        <div className="topbar skin-topbar">
           <a className="brand" href="#top" aria-label="HiveBuzz home">
             <span className="brand-mark" aria-hidden="true" />
             <span>hivebuzz</span>

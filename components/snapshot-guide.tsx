@@ -49,20 +49,19 @@ function StepList({ steps }: { steps: ReadonlyArray<readonly [string, string]> }
 export function SnapshotGuide() {
   return (
     <div className="site-shell guide-shell">
-      <header className="topbar">
-        <Link className="brand" href="/" aria-label="HiveBuzz home">
-          <span className="brand-mark" aria-hidden="true" />
-          <span>hivebuzz</span>
-          <small>.xyz · for Buzz</small>
-        </Link>
-        <nav className="topbar-actions" aria-label="Primary navigation">
-          <Link className="button button-ghost" href="/"><ArrowLeft size={16} aria-hidden="true" /> Library</Link>
-          <Link className="button button-ghost" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit agent</Link>
-        </nav>
-      </header>
-
-      <main className="guide-main">
-        <section className="guide-hero">
+      <header className="hero-skin guide-skin">
+        <div className="topbar skin-topbar">
+          <Link className="brand" href="/" aria-label="HiveBuzz home">
+            <span className="brand-mark" aria-hidden="true" />
+            <span>hivebuzz</span>
+            <small>.xyz · for Buzz</small>
+          </Link>
+          <nav className="topbar-actions" aria-label="Primary navigation">
+            <Link className="button button-ghost" href="/"><ArrowLeft size={16} aria-hidden="true" /> Library</Link>
+            <Link className="button button-ghost" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit agent</Link>
+          </nav>
+        </div>
+        <section className="subpage-hero guide-hero">
           <div>
             <p className="eyebrow">Buzz Agent Snapshot guide</p>
             <h1>Export safely.<br />Import deliberately.</h1>
@@ -72,7 +71,9 @@ export function SnapshotGuide() {
             <span>Get the file, verify it on your device, then make the final decision inside Buzz.</span>
           </div>
         </section>
+      </header>
 
+      <main className="guide-main">
         <section className="safety-banner" aria-labelledby="safe-default-title">
           <ShieldCheck size={26} aria-hidden="true" />
           <div>
