@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  ArrowLeft,
   BookOpen,
   Check,
   ClipboardCheck,
+  Compass,
   Download,
   ExternalLink,
   FileJson,
@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { SiteFooter } from "@/components/site-footer";
 import { useState } from "react";
 import { AGENT_CATEGORIES, type AgentCategory } from "@/lib/hive-contract";
 import type { AgentSnapshotScanResult } from "@/lib/snapshot-scan";
@@ -172,7 +173,7 @@ export function ContributeAgent() {
             <small>.xyz · for Buzz</small>
           </Link>
           <nav className="topbar-actions" aria-label="Primary navigation">
-            <Link className="button button-ghost" href="/"><ArrowLeft size={16} aria-hidden="true" /> Library</Link>
+            <Link className="button button-ghost" href="/#explore"><Compass size={16} aria-hidden="true" /> Explore</Link>
             <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Export guide</Link>
           </nav>
         </div>
@@ -256,10 +257,7 @@ export function ContributeAgent() {
         </section>
       </main>
 
-      <footer className="site-footer">
-        <p>Submissions are public review requests, not endorsements or automatic publication.</p>
-        <a href={GITHUB_REPOSITORY} target="_blank" rel="noopener noreferrer">Agent Hive on GitHub <ExternalLink size={13} /></a>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

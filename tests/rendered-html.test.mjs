@@ -36,12 +36,32 @@ test("server-renders the finished Agent Hive product", async () => {
   assert.match(html, /0(?:<!-- -->)? downloads/);
   assert.match(html, /Downloads show activity, not safety/);
   assert.match(html, /Submit agent/);
+  assert.match(html, /Explore<\/a>/);
+  assert.match(html, /id="explore"/);
+  assert.match(html, /Search agents, packs, or capabilities/);
   assert.match(html, /All topics/);
   assert.match(html, /Research/);
   assert.match(html, /Read the full export and import guide/);
+  assert.match(html, /Privacy_Protocol/);
+  assert.match(html, /Terms_of_Use/);
+  assert.match(html, /Contribute_Agent/);
   assert.doesNotMatch(html, /Connect signer|Give Honey|Sign & publish|Recent signed/i);
   assert.match(html, /<meta property="og:image" content="https?:\/\/[^\"]+\/og\.png"\/>/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
+});
+
+test("server-renders the privacy and terms routes", async () => {
+  const [privacyResponse, termsResponse] = await Promise.all([render("/privacy"), render("/terms")]);
+  assert.equal(privacyResponse.status, 200);
+  assert.equal(termsResponse.status, 200);
+
+  const [privacyHtml, termsHtml] = await Promise.all([privacyResponse.text(), termsResponse.text()]);
+  assert.match(privacyHtml, /Minimal data by design/);
+  assert.match(privacyHtml, /Local file inspection/);
+  assert.match(privacyHtml, /Checking System/);
+  assert.match(termsHtml, /Download first\. Trust last\./);
+  assert.match(termsHtml, /No automatic execution/);
+  assert.match(termsHtml, /Contribute_Agent/);
 });
 
 test("server-renders the English Snapshot guide with safety defaults", async () => {

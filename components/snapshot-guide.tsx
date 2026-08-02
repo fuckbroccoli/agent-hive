@@ -1,11 +1,10 @@
 import {
   AlertTriangle,
-  ArrowLeft,
   Bot,
   Check,
+  Compass,
   Download,
   FileJson,
-  GitFork,
   KeyRound,
   LockKeyhole,
   MonitorDown,
@@ -15,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { SiteFooter } from "@/components/site-footer";
 
 const exportSteps = [
   ["Open Agents", "In Buzz Desktop, open Agents from the left sidebar."],
@@ -57,7 +57,7 @@ export function SnapshotGuide() {
             <small>.xyz · for Buzz</small>
           </Link>
           <nav className="topbar-actions" aria-label="Primary navigation">
-            <Link className="button button-ghost" href="/"><ArrowLeft size={16} aria-hidden="true" /> Library</Link>
+            <Link className="button button-ghost" href="/#explore"><Compass size={16} aria-hidden="true" /> Explore</Link>
             <Link className="button button-ghost" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit agent</Link>
           </nav>
         </div>
@@ -175,10 +175,7 @@ export function SnapshotGuide() {
         </div>
       </main>
 
-      <footer className="site-footer">
-        <p>Last reviewed 2026-08-02 · Based on the current Buzz Desktop Snapshot flow.</p>
-        <a href="https://github.com/block/buzz" target="_blank" rel="noopener noreferrer">Contribute to Buzz <GitFork size={13} /></a>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
