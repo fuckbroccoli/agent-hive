@@ -21,10 +21,9 @@ export function SiteNav({ current = "home" }: SiteNavProps) {
           <BookOpen size={16} aria-hidden="true" />
           <span>Guide</span>
         </Link>
-        <Link className="button button-dark" href="/contribute" aria-current={current === "contribute" ? "page" : undefined} aria-label="Submit agent">
+        <Link className="button button-dark" href="/contribute" aria-current={current === "contribute" ? "page" : undefined} aria-label="Register agent">
           <Upload size={16} aria-hidden="true" />
-          <span className="nav-submit-long">Submit</span>
-          <span className="nav-submit-short" aria-hidden="true">Sub</span>
+          <span>Register</span>
         </Link>
       </nav>
     </div>

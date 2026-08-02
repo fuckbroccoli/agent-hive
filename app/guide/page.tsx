@@ -3,7 +3,7 @@ import { SnapshotGuide } from "@/components/snapshot-guide";
 
 export const metadata: Metadata = {
   title: "Export and import Buzz agents - hivebuzz",
-  description: "Export a memory-free Buzz Agent Snapshot, verify it locally, and import it with a fresh identity.",
+  description: "Export a Buzz Agent Snapshot without memory, verify it locally, and import it with a fresh identity.",
 };
 
 export default function GuidePage() {

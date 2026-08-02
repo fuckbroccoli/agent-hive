@@ -27,7 +27,7 @@ export function PolicyPage({ eyebrow, title, summary, sections }: PolicyPageProp
           <nav className="topbar-actions" aria-label="Primary navigation">
             <a className="button button-ghost" href="https://buzz.xyz" target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" /> Buzz</a>
             <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Guide</Link>
-            <Link className="button button-dark" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit</Link>
+            <Link className="button button-dark" href="/contribute"><Upload size={16} aria-hidden="true" /> Register</Link>
           </nav>
         </div>
       </header>

@@ -27,13 +27,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(origin),
     title: "hivebuzz - Open Buzz Agent Library",
-    description: "A login-free library of locally verified, portable Buzz Agent Snapshots.",
+    description: "A library of locally verified, portable Buzz Agent Snapshots with no login required.",
     applicationName: "hivebuzz",
     keywords: ["Buzz", "AI agents", "Agent Snapshots", "portable agents", "open library"],
     icons: { icon: "/icon.png", apple: "/icon.png" },
     openGraph: {
       title: "hivebuzz - Open Buzz Agent Library",
-      description: "A login-free library of locally verified Buzz agents.",
+      description: "A library of locally verified Buzz agents with no login required.",
       type: "website",
       url: origin,
       images: [{ url: imageUrl, width: 1200, height: 630, alt: "hivebuzz - Open Buzz Agent Library" }],
@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: "hivebuzz - Open Buzz Agent Library",
-      description: "A login-free library of locally verified Buzz agents.",
+      description: "A library of locally verified Buzz agents with no login required.",
       images: [imageUrl],
     },
   };

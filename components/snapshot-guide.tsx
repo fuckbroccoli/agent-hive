@@ -26,10 +26,10 @@ const exportSteps = [
 
 const importSteps = [
   ["Choose an agent", "Select an agent in HiveBuzz and choose Get agent."],
-  ["Review the local scan", "Check SHA-256, size, memory, remote-avatar, allowlist, and secret results."],
+  ["Review the local scan", "Check SHA 256, size, memory, remote avatar, allowlist, and secret results."],
   ["Download verified bytes", "Confirm both safety acknowledgements, then download the .agent.json or .agent.png file."],
   ["Drop it into Buzz", "Drag the file onto Buzz Desktop's Agents page."],
-  ["Review Buzz's preview", "Confirm no memory, a fresh keypair, and a cleared respond-to allowlist before importing."],
+  ["Review Buzz's preview", "Confirm no memory, a fresh keypair, and a cleared response allowlist before importing."],
   ["Inspect while stopped", "The copy receives a new identity. Review its model and full system prompt before starting it."],
 ] as const;
 
@@ -75,7 +75,7 @@ export function SnapshotGuide() {
             <span><Check size={14} /> No memory</span>
             <span><Check size={14} /> Fresh identity</span>
             <span><Check size={14} /> Clear allowlist</span>
-            <span><Check size={14} /> No auto-run</span>
+            <span><Check size={14} /> No automatic runs</span>
           </div>
         </section>
 
@@ -115,7 +115,7 @@ export function SnapshotGuide() {
               <ul>
                 <li><strong>No memory included</strong><span>The preview shows zero memory entries.</span></li>
                 <li><strong>Fresh keypair</strong><span>The original identity does not move with the file.</span></li>
-                <li><strong>Clear allowlist</strong><span>No source-environment response allowlist is retained.</span></li>
+                <li><strong>Clear allowlist</strong><span>No source environment response allowlist is retained.</span></li>
                 <li><strong>Stopped by default</strong><span>You can inspect the imported copy before it runs.</span></li>
               </ul>
             </div>
@@ -139,8 +139,8 @@ export function SnapshotGuide() {
           <div className="privacy-grid">
             <div><LockKeyhole size={20} /><strong>No login or signing</strong><p>No Nostr key, private key, wallet, or HiveBuzz account is required.</p></div>
             <div><MonitorDown size={20} /><strong>No background install</strong><p>The site cannot access your Buzz session or import a file automatically.</p></div>
-            <div><PackageCheck size={20} /><strong>No auto-run</strong><p>Verified files remain stopped data. You decide what runs inside Buzz.</p></div>
-            <div><KeyRound size={20} /><strong>No personal download log</strong><p>Only an aggregate release count is stored—never a user, key, cookie, device, or per-download event.</p></div>
+            <div><PackageCheck size={20} /><strong>No automatic runs</strong><p>Verified files remain stopped data. You decide what runs inside Buzz.</p></div>
+            <div><KeyRound size={20} /><strong>No personal download log</strong><p>Only an aggregate release count is stored. A user, key, cookie, device, or individual download event is never recorded.</p></div>
           </div>
         </section>
 
@@ -155,13 +155,13 @@ export function SnapshotGuide() {
           </div>
           <div className="guide-note">
             <Bot size={20} aria-hidden="true" />
-            <div><h2>Is PNG safe?</h2><p>HiveBuzz restricts PNG metadata to the Buzz snapshot channel and rejects memory-bearing payloads. JSON remains the better public-review format.</p></div>
+            <div><h2>Is PNG safe?</h2><p>HiveBuzz restricts PNG metadata to the Buzz snapshot channel and rejects payloads carrying memory. JSON remains the better public review format.</p></div>
           </div>
         </section>
 
         <div className="guide-cta">
           <div><p className="eyebrow">Made an agent?</p><h2>Scan it locally, then submit it for review.</h2></div>
-          <Link className="button button-dark button-large" href="/contribute"><Upload size={17} aria-hidden="true" /> Submit an agent</Link>
+          <Link className="button button-dark button-large" href="/contribute"><Upload size={17} aria-hidden="true" /> Register an agent</Link>
         </div>
       </main>
 

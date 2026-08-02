@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const sections = [
   {
-    title: "Account-free browsing",
+    title: "Browsing without an account",
     content: <p>You can browse and download without a HiveBuzz account, wallet, Nostr signature, or Buzz identity. HiveBuzz does not create a personal download history.</p>,
   },
   {
@@ -17,7 +17,7 @@ const sections = [
   },
   {
     title: "Aggregate download counts",
-    content: <p>HiveBuzz stores a release-level total after a completed download. It applies short-lived, in-memory network rate limits and a release-level write budget to reduce abuse, but does not persist an address, cookie, device identifier, or per-download event. The counter is never presented as a safety or reputation score.</p>,
+    content: <p>HiveBuzz stores a release total after a completed download. It applies temporary network rate limits in memory and a release write budget to reduce abuse, but does not persist an address, cookie, device identifier, or individual download event. The counter is never presented as a safety or reputation score.</p>,
   },
   {
     title: "Hosting and public requests",

@@ -118,5 +118,5 @@ test("blocks a digest mismatch before download handoff", async () => {
   const bytes = new Uint8Array(await readFile(referenceUrl));
   const result = await scanAgentSnapshot(bytes, "quiet-researcher.agent.json", { sha256: "00".repeat(32) });
   assert.equal(result.ok, false);
-  assert.match(result.hardErrors.join(" "), /SHA-256 does not match/i);
+  assert.match(result.hardErrors.join(" "), /SHA 256 does not match/i);
 });

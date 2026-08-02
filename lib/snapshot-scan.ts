@@ -241,7 +241,7 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
     return null;
   }
   onlyKeys(input, ["format", "version", "definition", "profile", "memory"], "Snapshot", errors);
-  if (input.format !== "buzz-agent-snapshot") errors.push("Only unlocked buzz-agent-snapshot files are accepted.");
+  if (input.format !== "buzz-agent-snapshot") errors.push("Only unlocked Buzz Agent Snapshot files are accepted.");
   if (input.version !== 1) errors.push("Only Buzz Agent Snapshot version 1 is supported.");
 
   const definition = input.definition;
@@ -258,14 +258,14 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
     boundedOptionalString(definition.runtime, "Runtime", 120, errors);
     boundedOptionalString(definition.model, "Model", 160, errors);
     boundedOptionalString(definition.provider, "Provider", 120, errors);
-    boundedOptionalString(definition.respondTo, "Respond-to policy", 80, errors);
+    boundedOptionalString(definition.respondTo, "Response policy", 80, errors);
     boundedOptionalInteger(definition.parallelism, "Parallelism", 1, 64, errors);
     boundedOptionalInteger(definition.idleTimeoutSeconds, "Idle timeout", 1, 31_536_000, errors);
     boundedOptionalInteger(definition.maxTurnDurationSeconds, "Maximum turn duration", 1, 86_400, errors);
     boundedStringArray(definition.respondToAllowlist, "Source allowlist", 128, 128, errors);
     boundedStringArray(definition.namePool, "Name pool", 64, 120, errors);
     if (Array.isArray(definition.respondToAllowlist) && definition.respondToAllowlist.length > 0) {
-      errors.push("Source-environment respond-to allowlists cannot be shared. Export without them or clear the list first.");
+      errors.push("Source environment response allowlists cannot be shared. Export without them or clear the list first.");
     }
   }
 
@@ -308,7 +308,7 @@ function suggestedMetadata(snapshot: AgentSnapshot) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 68) || "shared-agent";
   const about = snapshot.profile.about?.replace(/\s+/g, " ").trim();
-  const fallback = "A Buzz agent shared without memory, private keys, or source-environment access.";
+  const fallback = "A Buzz agent shared without memory, private keys, or source environment access.";
   const description = about && about.length >= 12 ? about.slice(0, 1_200) : fallback;
   const summary = description.length <= 160 ? description : `${description.slice(0, 157).trimEnd()}…`;
   return { id: `agent.${slug}`, name: name.slice(0, 60), summary, description };
@@ -334,7 +334,7 @@ export async function scanAgentSnapshot(
   if (!sourceFormat) hardErrors.push("Choose a .agent.json or .agent.png Buzz Agent Snapshot.");
   if (bytes.length < 1 || bytes.length > maxBytes) hardErrors.push(`Agent snapshot must be between 1 byte and ${maxBytes / 1024 / 1024} MiB.`);
   if (expected.sizeBytes !== undefined && bytes.length !== expected.sizeBytes) hardErrors.push("Artifact size does not match the catalog record.");
-  if (expected.sha256 !== undefined && sha256 !== expected.sha256) hardErrors.push("Artifact SHA-256 does not match the catalog record.");
+  if (expected.sha256 !== undefined && sha256 !== expected.sha256) hardErrors.push("Artifact SHA 256 does not match the catalog record.");
   if (expected.mediaType === "image/png" && !isPng) hardErrors.push("The catalog record requires a .agent.png artifact.");
   if (expected.mediaType === "application/vnd.buzz.agent-snapshot+json" && !isJson) hardErrors.push("The catalog record requires a .agent.json artifact.");
 
@@ -354,7 +354,7 @@ export async function scanAgentSnapshot(
     checks.push("No plaintext memory or source allowlist");
     checks.push("No known private key or credential pattern detected");
     checks.push(isPng ? "PNG metadata channels restricted" : "Strict JSON fields only");
-    checks.push("Exact SHA-256 and byte size verified");
+    checks.push("Exact SHA 256 and byte size verified");
     warnings.push("Static checks cannot prove an agent's instructions are benign. Review the full Buzz import preview before starting it.");
   }
 
