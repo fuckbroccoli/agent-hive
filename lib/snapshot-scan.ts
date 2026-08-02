@@ -1,3 +1,5 @@
+import { containsKnownSecret, containsSpoofingControl, isSafePublicLabel } from "./security-patterns";
+
 const JSON_MAX_BYTES = 5 * 1024 * 1024;
 const PNG_MAX_BYTES = 10 * 1024 * 1024;
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
@@ -89,21 +91,24 @@ function boundedOptionalInteger(value: unknown, label: string, min: number, max:
 
 function possibleSecrets(value: unknown, path = "snapshot"): string[] {
   const matches: string[] = [];
-  const patterns = [
-    /\bnsec1[023456789acdefghjklmnpqrstuvwxyz]{20,}\b/i,
-    /\bsk-[A-Za-z0-9_-]{20,}\b/,
-    /\bgh[pousr]_[A-Za-z0-9]{20,}\b/,
-    /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/,
-    /\bAKIA[A-Z0-9]{16}\b/,
-    /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/,
-    /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-  ];
   if (typeof value === "string") {
-    if (patterns.some((pattern) => pattern.test(value))) matches.push(path);
+    if (containsKnownSecret(value)) matches.push(path);
   } else if (Array.isArray(value)) {
     value.forEach((item, index) => matches.push(...possibleSecrets(item, `${path}[${index}]`)));
   } else if (isRecord(value)) {
     Object.entries(value).forEach(([key, item]) => matches.push(...possibleSecrets(item, `${path}.${key}`)));
+  }
+  return matches;
+}
+
+function possibleSpoofingControls(value: unknown, path = "snapshot"): string[] {
+  const matches: string[] = [];
+  if (typeof value === "string") {
+    if (containsSpoofingControl(value)) matches.push(path);
+  } else if (Array.isArray(value)) {
+    value.forEach((item, index) => matches.push(...possibleSpoofingControls(item, `${path}[${index}]`)));
+  } else if (isRecord(value)) {
+    Object.entries(value).forEach(([key, item]) => matches.push(...possibleSpoofingControls(item, `${path}.${key}`)));
   }
   return matches;
 }
@@ -236,7 +241,7 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
     return null;
   }
   onlyKeys(input, ["format", "version", "definition", "profile", "memory"], "Snapshot", errors);
-  if (input.format !== "buzz-agent-snapshot") errors.push("Only unlocked buzz-agent-snapshot files are accepted.");
+  if (input.format !== "buzz-agent-snapshot") errors.push("Only unlocked Buzz Agent Snapshot files are accepted.");
   if (input.version !== 1) errors.push("Only Buzz Agent Snapshot version 1 is supported.");
 
   const definition = input.definition;
@@ -247,20 +252,20 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
       "name", "sourceIsBuiltIn", "systemPrompt", "runtime", "model", "provider", "parallelism", "respondTo",
       "respondToAllowlist", "namePool", "idleTimeoutSeconds", "maxTurnDurationSeconds",
     ], "Snapshot definition", errors);
-    if (typeof definition.name !== "string" || !definition.name.trim() || definition.name.length > 120) errors.push("Agent definition name is invalid.");
+    if (!isSafePublicLabel(definition.name, 1, 120)) errors.push("Agent definition name must use visible characters without control characters.");
     if (definition.sourceIsBuiltIn !== undefined && typeof definition.sourceIsBuiltIn !== "boolean") errors.push("sourceIsBuiltIn must be a boolean.");
     boundedOptionalString(definition.systemPrompt, "System prompt", 256 * 1024, errors);
     boundedOptionalString(definition.runtime, "Runtime", 120, errors);
     boundedOptionalString(definition.model, "Model", 160, errors);
     boundedOptionalString(definition.provider, "Provider", 120, errors);
-    boundedOptionalString(definition.respondTo, "Respond-to policy", 80, errors);
+    boundedOptionalString(definition.respondTo, "Response policy", 80, errors);
     boundedOptionalInteger(definition.parallelism, "Parallelism", 1, 64, errors);
     boundedOptionalInteger(definition.idleTimeoutSeconds, "Idle timeout", 1, 31_536_000, errors);
     boundedOptionalInteger(definition.maxTurnDurationSeconds, "Maximum turn duration", 1, 86_400, errors);
     boundedStringArray(definition.respondToAllowlist, "Source allowlist", 128, 128, errors);
     boundedStringArray(definition.namePool, "Name pool", 64, 120, errors);
     if (Array.isArray(definition.respondToAllowlist) && definition.respondToAllowlist.length > 0) {
-      errors.push("Source-environment respond-to allowlists cannot be shared. Export without them or clear the list first.");
+      errors.push("Source environment response allowlists cannot be shared. Export without them or clear the list first.");
     }
   }
 
@@ -269,7 +274,7 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
     errors.push("Snapshot profile is missing.");
   } else {
     onlyKeys(profile, ["displayName", "about", "avatarDataUrl", "avatarUrl"], "Snapshot profile", errors);
-    if (typeof profile.displayName !== "string" || !profile.displayName.trim() || profile.displayName.length > 120) errors.push("Agent display name is invalid.");
+    if (!isSafePublicLabel(profile.displayName, 1, 120)) errors.push("Agent display name must use visible characters without control characters.");
     boundedOptionalString(profile.about, "Profile description", 4_000, errors);
     boundedOptionalString(profile.avatarDataUrl, "Embedded avatar", 3 * 1024 * 1024, errors);
     if (typeof profile.avatarDataUrl === "string") validateDataAvatar(profile.avatarDataUrl, errors);
@@ -290,6 +295,7 @@ function validateSnapshot(input: unknown, errors: string[]): AgentSnapshot | nul
   }
 
   if (possibleSecrets(input).length) errors.push("Possible API secret, private key, or credential material was detected.");
+  if (possibleSpoofingControls(input).length) errors.push("Unicode direction or invisible control characters are not allowed in a public snapshot.");
   return errors.length ? null : input as unknown as AgentSnapshot;
 }
 
@@ -302,7 +308,7 @@ function suggestedMetadata(snapshot: AgentSnapshot) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 68) || "shared-agent";
   const about = snapshot.profile.about?.replace(/\s+/g, " ").trim();
-  const fallback = "A Buzz agent shared without memory, private keys, or source-environment access.";
+  const fallback = "A Buzz agent shared without memory, private keys, or source environment access.";
   const description = about && about.length >= 12 ? about.slice(0, 1_200) : fallback;
   const summary = description.length <= 160 ? description : `${description.slice(0, 157).trimEnd()}…`;
   return { id: `agent.${slug}`, name: name.slice(0, 60), summary, description };
@@ -328,7 +334,7 @@ export async function scanAgentSnapshot(
   if (!sourceFormat) hardErrors.push("Choose a .agent.json or .agent.png Buzz Agent Snapshot.");
   if (bytes.length < 1 || bytes.length > maxBytes) hardErrors.push(`Agent snapshot must be between 1 byte and ${maxBytes / 1024 / 1024} MiB.`);
   if (expected.sizeBytes !== undefined && bytes.length !== expected.sizeBytes) hardErrors.push("Artifact size does not match the catalog record.");
-  if (expected.sha256 !== undefined && sha256 !== expected.sha256) hardErrors.push("Artifact SHA-256 does not match the catalog record.");
+  if (expected.sha256 !== undefined && sha256 !== expected.sha256) hardErrors.push("Artifact SHA 256 does not match the catalog record.");
   if (expected.mediaType === "image/png" && !isPng) hardErrors.push("The catalog record requires a .agent.png artifact.");
   if (expected.mediaType === "application/vnd.buzz.agent-snapshot+json" && !isJson) hardErrors.push("The catalog record requires a .agent.json artifact.");
 
@@ -346,9 +352,9 @@ export async function scanAgentSnapshot(
   if (!hardErrors.length && snapshot) {
     checks.push("Buzz Agent Snapshot v1 structure verified");
     checks.push("No plaintext memory or source allowlist");
-    checks.push("No private key or credential pattern detected");
+    checks.push("No known private key or credential pattern detected");
     checks.push(isPng ? "PNG metadata channels restricted" : "Strict JSON fields only");
-    checks.push("Exact SHA-256 and byte size verified");
+    checks.push("Exact SHA 256 and byte size verified");
     warnings.push("Static checks cannot prove an agent's instructions are benign. Review the full Buzz import preview before starting it.");
   }
 

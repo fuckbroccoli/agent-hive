@@ -182,7 +182,7 @@ export function ContributeAgent() {
             <p className="eyebrow">Contribute to HiveBuzz</p>
             <h1>Register your<br />Buzz agent.</h1>
           </div>
-          <p>Downloads stay account-free. To register, prove control through a public GitHub account and one pinned source commit. HiveBuzz never receives the file from this page.</p>
+          <p>Downloads require no account. To register, prove control through a public GitHub account and one pinned source commit. HiveBuzz never receives the file from this page.</p>
         </section>
       </header>
 
@@ -231,9 +231,9 @@ export function ContributeAgent() {
                 <label><span>Recommended model</span><input value={recommendedModel} onChange={(event) => setRecommendedModel(event.target.value)} maxLength={80} placeholder="Provider default or a model ID" /></label>
               </div>
               <label><span>License</span><select value={license} onChange={(event) => setLicense(event.target.value)}><option>MIT</option><option>Apache-2.0</option><option>CC0-1.0</option></select></label>
-              <label><span>GitHub handle</span><input value={publisherGithub} onChange={(event) => setPublisherGithub(event.target.value)} maxLength={40} autoComplete="username" placeholder="your-github-handle" /></label>
+              <label><span>GitHub handle</span><input value={publisherGithub} onChange={(event) => setPublisherGithub(event.target.value)} maxLength={40} autoComplete="username" placeholder="your GitHub handle" /></label>
               <label><span>Public source repository</span><input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://github.com/you/your-agent" /></label>
-              <label><span>Source commit</span><input value={sourceCommit} onChange={(event) => setSourceCommit(event.target.value)} maxLength={40} spellCheck={false} placeholder="40-character Git commit SHA" /></label>
+              <label><span>Source commit</span><input value={sourceCommit} onChange={(event) => setSourceCommit(event.target.value)} maxLength={40} spellCheck={false} placeholder="40 character Git commit SHA" /></label>
               <p className="form-note">Harness and model are recommendations, not imported credentials or enforced runtime settings. Open the GitHub request with the declared account. Reviewers verify the exact commit and artifact hash.</p>
             </div>
           </section>
@@ -256,9 +256,9 @@ export function ContributeAgent() {
         </section>
 
         <section className="submission-notes">
-          <div><FileJson size={19} /><p><strong>Open downloads</strong>Anyone can browse and download. Only publishing needs a public GitHub identity.</p></div>
-          <div><ClipboardCheck size={19} /><p><strong>Pull-request path</strong>Technical contributors can follow <a href={`${GITHUB_REPOSITORY}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener noreferrer">CONTRIBUTING.md</a>.</p></div>
-          <div><ShieldCheck size={19} /><p><strong>Already published?</strong>The verified publisher can <a href={`${GITHUB_REPOSITORY}/issues/new?template=agent-withdrawal.yml`} target="_blank" rel="noopener noreferrer">request withdrawal</a>. Security issues stay private.</p></div>
+          <div><FileJson size={19} /><p><strong>Open downloads</strong><span>Anyone can browse and download. Publishing needs a public GitHub identity.</span></p></div>
+          <div><ClipboardCheck size={19} /><p><strong>Pull request path</strong><span>Technical contributors can follow the <a href={`${GITHUB_REPOSITORY}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener noreferrer">CONTRIBUTING.md guide</a></span></p></div>
+          <div><ShieldCheck size={19} /><p><strong>Already published?</strong><span>Verified publishers can <a href={`${GITHUB_REPOSITORY}/issues/new?template=agent-withdrawal.yml`} target="_blank" rel="noopener noreferrer">request withdrawal</a> while security issues stay private.</span></p></div>
         </section>
       </main>
 

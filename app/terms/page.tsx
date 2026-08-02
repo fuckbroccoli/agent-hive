@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const sections = [
   {
     title: "Review before use",
-    content: <p>HiveBuzz provides inspectable agent artifacts, not endorsements. A passing static scan and matching SHA-256 confirm declared structure and exact bytes; they cannot prove that instructions or connected services are benign.</p>,
+    content: <p>HiveBuzz provides inspectable agent artifacts, not endorsements. A passing static scan and matching SHA 256 confirm declared structure and exact bytes; they cannot prove that instructions or connected services are benign.</p>,
   },
   {
     title: "No automatic execution",

@@ -26,7 +26,9 @@ account, connect a wallet, or install anything in the background.
   preview and activation decision.
 - Download counts are aggregate activity only. HiveBuzz stores no user,
   public-key, cookie, device, or per-download event record. Counts are not a
-  rank, endorsement, or safety score and can be gamed.
+  rank, endorsement, or safety score and can be gamed. Short-lived in-memory
+  request limits and a release-level D1 write budget bound counter abuse without
+  creating a persistent visitor identity.
 
 ## Use with Buzz Desktop
 
@@ -119,5 +121,6 @@ npm audit
 ```
 
 The shared D1 database stores curated release metadata and one aggregate count
-per release. The initial historical tables remain untouched in existing
-deployments, but the current application neither reads nor writes them.
+per release. Schema changes and cleanup run once through migrations. Catalog
+data is synchronized only when its content version changes, rather than being
+rewritten for every fresh Worker isolate.

@@ -81,6 +81,28 @@ test("blocks memory, source identities, remote beacons, unknown fields, and secr
   }
 });
 
+test("blocks additional known credentials, encoded private keys, and spoofing controls", async () => {
+  const base = JSON.parse(await readFile(referenceUrl, "utf8"));
+  const values = [
+    `AIza${"A".repeat(35)}`,
+    `sk_live_${"A".repeat(24)}`,
+    `ya29.${"A".repeat(30)}`,
+    `npm_${"A".repeat(36)}`,
+    Buffer.from("-----BEGIN PRIVATE KEY-----\nexample\n-----END PRIVATE KEY-----").toString("base64"),
+  ];
+  for (const value of values) {
+    const snapshot = { ...base, definition: { ...base.definition, systemPrompt: `Use ${value}` } };
+    const result = await scanAgentSnapshot(new TextEncoder().encode(JSON.stringify(snapshot)), "secret.agent.json");
+    assert.equal(result.ok, false, value.slice(0, 12));
+    assert.match(result.hardErrors.join(" "), /private key|credential/i);
+  }
+
+  const spoofed = { ...base, profile: { ...base.profile, displayName: "Researcher\u202Egpj.exe" } };
+  const spoofedResult = await scanAgentSnapshot(new TextEncoder().encode(JSON.stringify(spoofed)), "spoofed.agent.json");
+  assert.equal(spoofedResult.ok, false);
+  assert.match(spoofedResult.hardErrors.join(" "), /control characters|Unicode direction/i);
+});
+
 test("accepts only the dedicated Buzz PNG snapshot metadata channel", async () => {
   const snapshotBytes = new Uint8Array(await readFile(referenceUrl));
   const valid = await scanAgentSnapshot(snapshotPng(snapshotBytes), "quiet-researcher.agent.png", { mediaType: "image/png" });
@@ -96,5 +118,5 @@ test("blocks a digest mismatch before download handoff", async () => {
   const bytes = new Uint8Array(await readFile(referenceUrl));
   const result = await scanAgentSnapshot(bytes, "quiet-researcher.agent.json", { sha256: "00".repeat(32) });
   assert.equal(result.ok, false);
-  assert.match(result.hardErrors.join(" "), /SHA-256 does not match/i);
+  assert.match(result.hardErrors.join(" "), /SHA 256 does not match/i);
 });

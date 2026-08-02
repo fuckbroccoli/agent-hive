@@ -27,4 +27,12 @@ export const downloads = sqliteTable("downloads", {
   releaseKey: text("release_key").primaryKey().references(() => releases.releaseKey),
   count: integer("count").notNull().default(0),
   updatedAt: integer("updated_at").notNull().default(sql`(unixepoch())`),
+  windowStartedAt: integer("window_started_at").notNull().default(0),
+  windowCount: integer("window_count").notNull().default(0),
+});
+
+export const hivebuzzMeta = sqliteTable("hivebuzz_meta", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: integer("updated_at").notNull().default(sql`(unixepoch())`),
 });
