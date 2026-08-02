@@ -439,7 +439,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
 
       <footer className="site-footer">
         <p>Agent Hive is an independent, login-free catalog for Buzz contributors.</p>
-        <a href="https://github.com/fuckbroccoli/agent-hive" target="_blank" rel="noopener noreferrer">Contribute an agent <ExternalLink size={13} /></a>
+        <a href="https://github.com/fuckbroccoli/buzzhive" target="_blank" rel="noopener noreferrer">Contribute an agent <ExternalLink size={13} /></a>
       </footer>
 
       <InstallDialog

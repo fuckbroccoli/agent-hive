@@ -19,7 +19,7 @@ import { useState } from "react";
 import { AGENT_CATEGORIES, type AgentCategory } from "@/lib/hive-contract";
 import type { AgentSnapshotScanResult } from "@/lib/snapshot-scan";
 
-const GITHUB_REPOSITORY = "https://github.com/fuckbroccoli/agent-hive";
+const GITHUB_REPOSITORY = "https://github.com/fuckbroccoli/buzzhive";
 const MAX_SNAPSHOT_BYTES = 10 * 1024 * 1024;
 
 interface SelectedSnapshot {
