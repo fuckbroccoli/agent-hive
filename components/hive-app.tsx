@@ -4,16 +4,13 @@ import {
   AlertTriangle,
   ArrowLeft,
   Bot,
-  BookOpen,
   Check,
   Download,
   ExternalLink,
-  FileArchive,
   FolderLock,
   Hash,
   LockKeyhole,
   Network,
-  Package,
   PackageCheck,
   Plug,
   Search,
@@ -23,13 +20,11 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
-import type { ArchiveScanResult } from "@/lib/archive-scan";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import type { AgentSnapshotScanResult } from "@/lib/snapshot-scan";
 import { SiteFooter } from "@/components/site-footer";
-import { AGENT_CATEGORIES, type AgentCategory, type ReleaseRecord } from "@/lib/hive-contract";
-
-type Lane = "agent" | "pack" | "all";
+import { SiteNav } from "@/components/site-nav";
+import { AGENT_CATEGORIES, type AgentCategory, type AgentHarness, type ReleaseRecord } from "@/lib/hive-contract";
 
 interface HiveAppProps {
   initialReleases: ReleaseRecord[];
@@ -58,6 +53,7 @@ interface DialogProps {
 }
 
 const numberFormatter = new Intl.NumberFormat("en-US");
+const GITHUB_REPOSITORY = "https://github.com/promptprobe/hivebuzz";
 const CATEGORY_LABELS: Record<AgentCategory, string> = {
   research: "Research",
   development: "Development",
@@ -67,6 +63,12 @@ const CATEGORY_LABELS: Record<AgentCategory, string> = {
   marketing: "Marketing",
   security: "Security",
   personal: "Personal",
+};
+const HARNESS_LABELS: Record<AgentHarness, string> = {
+  codex: "Codex",
+  claude: "Claude Code",
+  goose: "Goose",
+  "buzz-agent": "Buzz Agent",
 };
 
 function Dialog({ title, eyebrow, open, onClose, children, wide }: DialogProps) {
@@ -122,13 +124,7 @@ function RiskLabel({ release }: { release: ReleaseRecord }) {
 }
 
 function CountLine({ release }: { release: ReleaseRecord }) {
-  if (release.manifest.type === "agent") return <span>Agent snapshot · no memory · no bundled tools</span>;
-  const { contents } = release.manifest;
-  return (
-    <span>
-      {contents.agents} {contents.agents === 1 ? "agent" : "agents"} · {contents.skills} {contents.skills === 1 ? "skill" : "skills"} · {contents.mcpServers} MCP · {contents.hooks ? `${contents.hooks} hook` : "No hooks"}
-    </span>
-  );
+  return <span>{release.manifest.contents.agents} agent · no memory · no bundled tools</span>;
 }
 
 function CheckRow({ icon, title, detail, tone = "ok" }: { icon: ReactNode; title: string; detail: string; tone?: "ok" | "warn" | "block" }) {
@@ -156,16 +152,16 @@ function capabilitySummary(release: ReleaseRecord) {
 }
 
 export function HiveApp({ initialReleases }: HiveAppProps) {
-  const initialAgent = initialReleases.find((release) => release.manifest.type === "agent");
   const [releases, setReleases] = useState(initialReleases);
-  const [selectedKey, setSelectedKey] = useState(initialAgent?.key ?? initialReleases[0]?.key ?? "");
+  const [selectedKey, setSelectedKey] = useState(initialReleases[0]?.key ?? "");
   const [query, setQuery] = useState("");
-  const [lane, setLane] = useState<Lane>("agent");
   const [category, setCategory] = useState<"all" | AgentCategory>("all");
   const [mobileDetail, setMobileDetail] = useState(false);
   const [installRelease, setInstallRelease] = useState<ReleaseRecord | null>(null);
   const [notice, setNotice] = useState<NoticeState | null>(null);
+  const [categoryDragging, setCategoryDragging] = useState(false);
   const catalogRef = useRef<HTMLElement>(null);
+  const categoryDragRef = useRef({ pointerId: -1, startX: 0, scrollLeft: 0, moved: false, suppressClick: false });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -176,7 +172,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
         setReleases(data.releases);
         setSelectedKey((current) => data.releases?.some((release) => release.key === current)
           ? current
-          : data.releases?.find((release) => release.manifest.type === "agent")?.key ?? data.releases?.[0]?.key ?? "");
+          : data.releases?.[0]?.key ?? "");
       })
       .catch(() => undefined);
     return () => controller.abort();
@@ -192,7 +188,6 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
     const normalized = query.trim().toLowerCase();
     return releases
       .filter((release) => {
-        if (lane !== "all" && release.manifest.type !== lane) return false;
         if (category !== "all" && release.manifest.release.category !== category) return false;
         if (!normalized) return true;
         const item = release.manifest.release;
@@ -215,11 +210,8 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
           .toLowerCase()
           .includes(normalized);
       })
-      .sort((a, b) => {
-        if (lane === "all" && a.manifest.type !== b.manifest.type) return a.manifest.type === "agent" ? -1 : 1;
-        return b.addedAt - a.addedAt;
-      });
-  }, [category, lane, query, releases]);
+      .sort((a, b) => b.addedAt - a.addedAt);
+  }, [category, query, releases]);
 
   const selected = visibleReleases.find((release) => release.key === selectedKey) ?? visibleReleases[0];
   const totalDownloads = releases.reduce((total, release) => total + release.downloadCount, 0);
@@ -237,33 +229,56 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
 
   const openSearchResults = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLane("all");
     setCategory("all");
     setMobileDetail(false);
     requestAnimationFrame(() => catalogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
+  const startCategoryDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+    categoryDragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      scrollLeft: event.currentTarget.scrollLeft,
+      moved: false,
+      suppressClick: false,
+    };
+  };
+
+  const moveCategoryDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = categoryDragRef.current;
+    if (event.pointerId !== drag.pointerId) return;
+    const delta = event.clientX - drag.startX;
+    if (!drag.moved && Math.abs(delta) < 5) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      setCategoryDragging(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    event.preventDefault();
+    event.currentTarget.scrollLeft = drag.scrollLeft - delta;
+  };
+
+  const finishCategoryDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = categoryDragRef.current;
+    if (event.pointerId !== drag.pointerId) return;
+    if (drag.moved) drag.suppressClick = true;
+    drag.pointerId = -1;
+    setCategoryDragging(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+
   return (
     <div className="site-shell">
       <header className="hero-skin home-skin" id="top">
-        <div className="topbar skin-topbar">
-          <a className="brand" href="#top" aria-label="HiveBuzz home">
-            <span className="brand-mark" aria-hidden="true" />
-            <span>hivebuzz</span>
-          </a>
-          <nav className="topbar-actions" aria-label="Primary navigation">
-            <a className="button button-ghost" href="https://buzz.xyz" target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" /> Buzz</a>
-            <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Guide</Link>
-            <Link className="button button-dark" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit</Link>
-          </nav>
-        </div>
+        <SiteNav current="home" />
         <section className="intro">
           <div>
             <p className="eyebrow">Open Buzz agent library</p>
-            <h1>Buzz agents,<br />ready to import.</h1>
+            <h1>Bring better<br />agents to Buzz</h1>
           </div>
           <div className="intro-copy">
-            <p>Browse without an account. Verify exact bytes in your browser. Drag a stopped copy into Buzz Desktop.</p>
+            <p>Portable Buzz agents. Verify exact bytes in your browser. Drag a stopped copy into Buzz Desktop</p>
             <div className="principles" aria-label="HiveBuzz principles">
               <span><LockKeyhole size={15} aria-hidden="true" /> No login</span>
               <span><ShieldCheck size={15} aria-hidden="true" /> Local verification</span>
@@ -272,12 +287,12 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
           </div>
           <form className="hero-search" role="search" onSubmit={openSearchResults}>
             <Search size={22} aria-hidden="true" />
-            <label className="sr-only" htmlFor="hero-agent-search">Search HiveBuzz agents and packs</label>
+            <label className="sr-only" htmlFor="hero-agent-search">Search HiveBuzz agents</label>
             <input
               id="hero-agent-search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search agents, packs, or capabilities"
+              placeholder="Search agents or capabilities"
               autoComplete="off"
             />
             {query ? <button className="hero-search-clear" type="button" onClick={() => setQuery("")} aria-label="Clear search"><X size={16} /></button> : null}
@@ -290,12 +305,21 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
         <section ref={catalogRef} className={`hive-workspace ${mobileDetail ? "show-detail" : "show-list"}`} aria-label="Buzz agent library">
           <aside className="catalog-panel">
             <div className="catalog-tools">
-              <div className="lane-switch" aria-label="Release type">
-                {([["agent", "Agents"], ["pack", "Packs"], ["all", "All"]] as Array<[Lane, string]>).map(([value, label]) => (
-                  <button key={value} type="button" className={lane === value ? "active" : ""} onClick={() => { setLane(value); setCategory("all"); setMobileDetail(false); }} aria-pressed={lane === value}>{label}</button>
-                ))}
-              </div>
-              <div className="category-filter" aria-label="Agent category">
+              <div className="catalog-heading"><Bot size={16} aria-hidden="true" /><strong>Agents</strong></div>
+              <div
+                className={`category-filter ${categoryDragging ? "dragging" : ""}`}
+                aria-label="Agent category"
+                onPointerDown={startCategoryDrag}
+                onPointerMove={moveCategoryDrag}
+                onPointerUp={finishCategoryDrag}
+                onPointerCancel={finishCategoryDrag}
+                onClickCapture={(event) => {
+                  if (!categoryDragRef.current.suppressClick) return;
+                  categoryDragRef.current.suppressClick = false;
+                  event.preventDefault();
+                  event.stopPropagation();
+                }}
+              >
                 <button type="button" className={category === "all" ? "active" : ""} onClick={() => setCategory("all")} aria-pressed={category === "all"}>All topics</button>
                 {AGENT_CATEGORIES.map((item) => (
                   <button key={item} type="button" className={category === item ? "active" : ""} onClick={() => setCategory(item)} aria-pressed={category === item}>{CATEGORY_LABELS[item]}</button>
@@ -303,8 +327,8 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
               </div>
               <label className="search-box">
                 <Search size={17} aria-hidden="true" />
-                <span className="sr-only">Search agents and packs</span>
-                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={lane === "agent" ? "Search agents" : lane === "pack" ? "Search packs" : "Search library"} />
+                <span className="sr-only">Search agents</span>
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search agents" />
                 {query ? <button type="button" onClick={() => setQuery("")} aria-label="Clear search"><X size={15} /></button> : null}
               </label>
             </div>
@@ -328,12 +352,11 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                       <span className="version">v{item.version}</span>
                     </span>
                     <span className="release-summary">{item.summary}</span>
+                    <span className="release-runtime">{HARNESS_LABELS[item.recommendedHarness]} · {item.recommendedModel}</span>
                     <span className="release-meta"><CountLine release={release} /></span>
                     <span className="release-card-bottom">
                       <span className="card-labels">
-                        <span className={`type-pill type-${release.manifest.type}`}>
-                          {release.manifest.type === "agent" ? <Bot size={11} /> : <Package size={11} />}{release.manifest.type}
-                        </span>
+                        <span className="type-pill type-agent"><Bot size={11} />agent</span>
                         <span className="category-pill">{CATEGORY_LABELS[item.category]}</span>
                         <RiskLabel release={release} />
                       </span>
@@ -364,7 +387,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                       <div>
                         <div className="detail-kicker">
                           <RiskLabel release={selected} />
-                          <span className={`type-pill type-${selected.manifest.type}`}>{selected.manifest.type}</span>
+                          <span className="type-pill type-agent">agent</span>
                           <span className="category-pill">{CATEGORY_LABELS[selected.manifest.release.category]}</span>
                           <span>v{selected.manifest.release.version}</span>
                           <span>{selected.manifest.release.license}</span>
@@ -413,16 +436,19 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                     ) : null}
                   </div>
 
+                  <div className="detail-section recommended-runtime">
+                    <p className="section-label">Recommended runtime</p>
+                    <div><span>Agent harness</span><strong>{HARNESS_LABELS[selected.manifest.release.recommendedHarness]}</strong></div>
+                    <div><span>Model</span><strong>{selected.manifest.release.recommendedModel}</strong></div>
+                    <small>Recommendation only. HiveBuzz does not install a harness, select credentials, or enforce a model.</small>
+                  </div>
+
                   <div className="detail-section">
                     <p className="section-label">Before download</p>
                     <div className="checks-list">
                       <CheckRow icon={<ShieldCheck size={18} />} title="Curated catalog record" detail="Public submissions require a GitHub publisher and pinned source commit. Project-owned examples are maintained in this repository." />
                       <CheckRow icon={<Hash size={18} />} title="Exact SHA-256 pinned" detail="A one-byte change blocks the final handoff." />
-                      {selected.manifest.type === "agent" ? (
-                        <CheckRow icon={<LockKeyhole size={18} />} title="Private state excluded" detail="Memory, source allowlists, remote avatars, credentials, and bundled executable tools are rejected locally." />
-                      ) : (
-                        <CheckRow icon={<FileArchive size={18} />} title="Archive inspected locally" detail="Paths, expansion size, secrets, commands, MCP tools, and hooks are checked before download." />
-                      )}
+                      <CheckRow icon={<LockKeyhole size={18} />} title="Private state excluded" detail="Memory, source allowlists, remote avatars, credentials, and bundled executable tools are rejected locally." />
                       <CheckRow icon={<PackageCheck size={18} />} title="Nothing auto-runs" detail="HiveBuzz only hands off verified bytes. Buzz shows the final import review." />
                     </div>
                   </div>
@@ -445,16 +471,17 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                 </div>
 
                 <div className="detail-actions">
+                  <a className="button button-ghost withdraw-link" href={`${GITHUB_REPOSITORY}/issues/new?template=agent-withdrawal.yml&title=${encodeURIComponent(`Withdraw agent: ${selected.manifest.release.name} v${selected.manifest.release.version}`)}`} target="_blank" rel="noopener noreferrer">Withdraw</a>
                   {selected.manifest.release.homepage ? (
                     <a className="button button-outline" href={selected.manifest.release.homepage} target="_blank" rel="noopener noreferrer">Source <ExternalLink size={14} /></a>
                   ) : null}
                   <button className="button button-dark button-large" type="button" onClick={() => setInstallRelease(selected)}>
-                    <Download size={17} aria-hidden="true" /> {selected.manifest.type === "agent" ? "Get agent" : "Review Pack"}
+                    <Download size={17} aria-hidden="true" /> Get agent
                   </button>
                 </div>
               </>
             ) : (
-              <div className="empty-state"><Package size={24} /><strong>Select a release</strong></div>
+              <div className="empty-state"><Bot size={24} /><strong>Select an agent</strong></div>
             )}
           </section>
         </section>
@@ -489,7 +516,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
   );
 }
 
-function toScanView(result: AgentSnapshotScanResult | ArchiveScanResult): ScanView {
+function toScanView(result: AgentSnapshotScanResult): ScanView {
   return {
     ok: result.ok,
     sha256: result.sha256,
@@ -534,16 +561,11 @@ function InstallDialog({
     setReviewed(false);
     setHandoffUnderstood(false);
     try {
-      const result = release.manifest.type === "agent"
-        ? await import("@/lib/snapshot-scan").then(({ scanAgentSnapshot }) => scanAgentSnapshot(input, fileName, {
-            sha256: release.manifest.artifact.sha256,
-            sizeBytes: release.manifest.artifact.sizeBytes,
-            mediaType: release.manifest.artifact.mediaType,
-          }))
-        : await import("@/lib/archive-scan").then(({ scanBuzzpack }) => scanBuzzpack(input, {
-            sha256: release.manifest.artifact.sha256,
-            sizeBytes: release.manifest.artifact.sizeBytes,
-          }));
+      const result = await import("@/lib/snapshot-scan").then(({ scanAgentSnapshot }) => scanAgentSnapshot(input, fileName, {
+        sha256: release.manifest.artifact.sha256,
+        sizeBytes: release.manifest.artifact.sizeBytes,
+        mediaType: release.manifest.artifact.mediaType,
+      }));
       const view = toScanView(result);
       setScan(view);
       if (view.ok) setBytes(new Uint8Array(input.slice(0)));
@@ -596,23 +618,18 @@ function InstallDialog({
   }, [externalArtifact, inspectBytes, release, sourceFileName]);
 
   if (!release) return null;
-  const type = release.manifest.type;
   const item = release.manifest.release;
-  const maxBytes = type === "agent"
-    ? release.manifest.artifact.mediaType === "image/png" ? 10 * 1024 * 1024 : 5 * 1024 * 1024
-    : 25 * 1024 * 1024;
+  const maxBytes = release.manifest.artifact.mediaType === "image/png" ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
   const canDownload = Boolean(bytes && scan?.ok && reviewed && handoffUnderstood && !busy);
 
   const selectFile = async (file?: File) => {
     if (!file) return;
     setSelectedFileName(file.name);
     const lowerName = file.name.toLowerCase();
-    const validName = type === "agent"
-      ? lowerName.endsWith(".agent.json") || lowerName.endsWith(".agent.png")
-      : lowerName.endsWith(".buzzpack");
+    const validName = lowerName.endsWith(".agent.json") || lowerName.endsWith(".agent.png");
     if (!validName) {
       setBytes(null);
-      setScan({ ok: false, sha256: "", checks: [], warnings: [], hardErrors: [`Choose ${type === "agent" ? "a .agent.json or .agent.png" : "a .buzzpack"} file.`] });
+      setScan({ ok: false, sha256: "", checks: [], warnings: [], hardErrors: ["Choose a .agent.json or .agent.png file."] });
       return;
     }
     if (file.size < 1 || file.size > maxBytes) {
@@ -630,7 +647,7 @@ function InstallDialog({
     const objectUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = objectUrl;
-    const extension = type === "pack" ? ".buzzpack" : release.manifest.artifact.mediaType === "image/png" ? ".agent.png" : ".agent.json";
+    const extension = release.manifest.artifact.mediaType === "image/png" ? ".agent.png" : ".agent.json";
     link.download = `${item.id}-${item.version}${extension}`.replace(/[^a-zA-Z0-9._-]/g, "-");
     document.body.appendChild(link);
     link.click();
@@ -651,23 +668,21 @@ function InstallDialog({
 
     onNotice({
       tone: "success",
-      message: type === "agent"
-        ? "Verified Agent downloaded. Drag it into Buzz Desktop's Agents page."
-        : "Verified Pack downloaded. HiveBuzz did not execute it.",
+      message: "Verified Agent downloaded. Drag it into Buzz Desktop's Agents page.",
     });
     setBusy(false);
     onClose();
   };
 
   return (
-    <Dialog open={Boolean(release)} onClose={onClose} title={type === "agent" ? "Get verified agent" : "Review Pack"} eyebrow={`${item.name} · v${item.version}`} wide>
+    <Dialog open={Boolean(release)} onClose={onClose} title="Get verified agent" eyebrow={`${item.name} · v${item.version}`} wide>
       <div className="install-layout">
         <div className="install-main">
           <div className="install-principle">
             <ShieldCheck size={21} aria-hidden="true" />
             <div>
-              <strong>{type === "agent" ? "Import behavior, not identity" : "Review before enabling"}</strong>
-              <p>{type === "agent" ? "HiveBuzz verifies the snapshot. Buzz Desktop previews it and creates a fresh private identity on import." : "HiveBuzz verifies and hands off exact bytes. Hooks and tools remain a separate Buzz decision."}</p>
+              <strong>Import behavior, not identity</strong>
+              <p>HiveBuzz verifies the snapshot. Buzz Desktop previews it and creates a fresh private identity on import.</p>
             </div>
           </div>
 
@@ -677,8 +692,8 @@ function InstallDialog({
                 <a className="button button-outline" href={release.manifest.artifact.url} target="_blank" rel="noopener noreferrer">Download source file <ExternalLink size={14} /></a>
               ) : null}
               <label className="file-drop" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); void selectFile(event.dataTransfer.files[0]); }}>
-                <input type="file" accept={type === "agent" ? ".agent.json,.agent.png,application/json,image/png" : ".buzzpack,application/zip"} onChange={(event) => void selectFile(event.target.files?.[0])} />
-                {type === "agent" ? <Bot size={22} aria-hidden="true" /> : <FileArchive size={22} aria-hidden="true" />}
+                <input type="file" accept=".agent.json,.agent.png,application/json,image/png" onChange={(event) => void selectFile(event.target.files?.[0])} />
+                <Bot size={22} aria-hidden="true" />
                 <span>
                   <strong>{selectedFileName || `Select ${sourceFileName}`}</strong>
                   <small>{externalArtifact ? "External URLs are never fetched automatically." : "Choose the catalog file to retry local verification."}</small>
@@ -701,33 +716,32 @@ function InstallDialog({
             <div className="review-confirmations">
               <label>
                 <input type="checkbox" checked={reviewed} onChange={(event) => setReviewed(event.target.checked)} />
-                <span><strong>{type === "agent" ? "I reviewed the snapshot checks." : "I reviewed every declared capability."}</strong><small>{type === "agent" ? "Static checks reduce risk but cannot prove instructions are benign." : `${capabilitySummary(release)} · filesystem: ${release.manifest.capabilities.filesystem}`}</small></span>
+                <span><strong>I reviewed the snapshot checks.</strong><small>Static checks reduce risk but cannot prove instructions are benign.</small></span>
               </label>
               <label>
                 <input type="checkbox" checked={handoffUnderstood} onChange={(event) => setHandoffUnderstood(event.target.checked)} />
-                <span><strong>{type === "agent" ? "I will review the Buzz import preview." : "I understand download and execution are separate."}</strong><small>{type === "agent" ? "Agents page → drop file → review preview → import." : "Keep hooks and MCP tools off until separately approved in Buzz."}</small></span>
+                <span><strong>I will review the Buzz import preview.</strong><small>Agents page → drop file → review preview → import.</small></span>
               </label>
             </div>
           ) : null}
         </div>
 
         <aside className="install-sidebar">
-          <p className="section-label">{type === "agent" ? "Snapshot policy" : "This version requests"}</p>
+          <p className="section-label">Snapshot policy</p>
           <dl className="request-list">
-            <div><dt>{type === "agent" ? "Memory" : "Network"}</dt><dd>{type === "agent" ? "Excluded" : release.manifest.capabilities.networkHosts.length ? release.manifest.capabilities.networkHosts.join(", ") : "None"}</dd></div>
-            <div><dt>{type === "agent" ? "Identity" : "Filesystem"}</dt><dd>{type === "agent" ? "Fresh on import" : release.manifest.capabilities.filesystem}</dd></div>
-            <div><dt>{type === "agent" ? "Bundled tools" : "MCP tools"}</dt><dd>{type === "agent" ? "None" : release.manifest.capabilities.mcpServers.length}</dd></div>
-            <div><dt>{type === "agent" ? "Source allowlist" : "Hooks"}</dt><dd>{type === "agent" ? "Excluded" : release.manifest.capabilities.hooks.length}</dd></div>
+            <div><dt>Memory</dt><dd>Excluded</dd></div>
+            <div><dt>Identity</dt><dd>Fresh on import</dd></div>
+            <div><dt>Bundled tools</dt><dd>None</dd></div>
+            <div><dt>Source allowlist</dt><dd>Excluded</dd></div>
             <div><dt>Auto-run</dt><dd>Off</dd></div>
           </dl>
           <div className="digest-box"><span>Catalog SHA-256</span><code>{release.manifest.artifact.sha256}</code></div>
-          {type === "pack" ? <div className="digest-box"><span>Optional CLI review</span><code>buzz pack inspect &lt;file.buzzpack&gt;</code></div> : null}
         </aside>
       </div>
       <div className="dialog-footer dialog-footer-install">
-        <p><strong>{type === "agent" ? "Verify → download → drag into Buzz Desktop." : "Verify → download → import stopped."}</strong><br />No account, identity signature, or background install.</p>
+        <p><strong>Verify → download → drag into Buzz Desktop.</strong><br />No account, identity signature, or background install.</p>
         <button className="button button-dark button-large" type="button" disabled={!canDownload} onClick={() => void download()}>
-          <Download size={17} aria-hidden="true" /> {busy ? "Finishing…" : `Download verified ${type === "agent" ? "agent" : "Pack"}`}
+          <Download size={17} aria-hidden="true" /> {busy ? "Finishing…" : "Download verified agent"}
         </button>
       </div>
     </Dialog>

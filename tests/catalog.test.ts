@@ -1,14 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { scanBuzzpack } from "../lib/archive-scan";
 import { CATALOG_RELEASES } from "../lib/catalog-seeds";
 import { recordFromManifest, releaseKeyFor, validateManifest } from "../lib/hive";
 import { scanAgentSnapshot } from "../lib/snapshot-scan";
 
 test("accepts every bounded catalog release with a stable key", () => {
-  assert.equal(CATALOG_RELEASES.length, 8);
-  assert.equal(CATALOG_RELEASES.filter((release) => release.manifest.type === "agent").length, 5);
+  assert.equal(CATALOG_RELEASES.length, 5);
   assert.equal(new Set(CATALOG_RELEASES.map((release) => release.key)).size, CATALOG_RELEASES.length);
 
   for (const release of CATALOG_RELEASES) {
@@ -42,6 +40,14 @@ test("rejects hidden fields, unsafe Agent capabilities, secrets, and bad artifac
   const badCategory = structuredClone(base) as unknown as { release: { category: string } };
   badCategory.release.category = "uncategorized";
   assert.match(validateManifest(badCategory, { allowRelativeArtifact: true }).errors.join(" "), /category is invalid/i);
+
+  const badHarness = structuredClone(base) as unknown as { release: { recommendedHarness: string } };
+  badHarness.release.recommendedHarness = "unknown-runtime";
+  assert.match(validateManifest(badHarness, { allowRelativeArtifact: true }).errors.join(" "), /harness is invalid/i);
+
+  const pack = structuredClone(base) as unknown as { type: string };
+  pack.type = "pack";
+  assert.match(validateManifest(pack, { allowRelativeArtifact: true }).errors.join(" "), /type must be agent/i);
 });
 
 test("every bundled catalog artifact passes the exact browser handoff scanner", async () => {
@@ -49,19 +55,12 @@ test("every bundled catalog artifact passes the exact browser handoff scanner", 
     const artifact = release.manifest.artifact;
     const fileName = artifact.url.split("/").pop()!;
     const bytes = await readFile(new URL(`../public${artifact.url}`, import.meta.url));
-    if (release.manifest.type === "agent") {
-      const result = await scanAgentSnapshot(bytes, fileName, {
-        sha256: artifact.sha256,
-        sizeBytes: artifact.sizeBytes,
-        mediaType: artifact.mediaType,
-      });
-      assert.equal(result.ok, true, `${release.key}: ${result.hardErrors.join(" ")}`);
-      assert.equal(result.sha256, artifact.sha256);
-    } else {
-      const result = await scanBuzzpack(bytes, { sha256: artifact.sha256, sizeBytes: artifact.sizeBytes });
-      assert.equal(result.ok, true, `${release.key}: ${result.hardErrors.join(" ")}`);
-      assert.equal(result.sha256, artifact.sha256);
-      assert.deepEqual(result.contents, release.manifest.contents);
-    }
+    const result = await scanAgentSnapshot(bytes, fileName, {
+      sha256: artifact.sha256,
+      sizeBytes: artifact.sizeBytes,
+      mediaType: artifact.mediaType,
+    });
+    assert.equal(result.ok, true, `${release.key}: ${result.hardErrors.join(" ")}`);
+    assert.equal(result.sha256, artifact.sha256);
   }
 });

@@ -25,7 +25,7 @@ async function initialize() {
       CREATE TABLE IF NOT EXISTS releases (
         release_key TEXT PRIMARY KEY,
         release_id TEXT NOT NULL,
-        type TEXT NOT NULL CHECK (type IN ('agent', 'pack')),
+        type TEXT NOT NULL CHECK (type = 'agent'),
         name TEXT NOT NULL,
         version TEXT NOT NULL,
         summary TEXT NOT NULL,
@@ -83,6 +83,10 @@ async function initialize() {
       record.addedAt,
     );
   });
+  await db.batch([
+    db.prepare("DELETE FROM downloads WHERE release_key IN (SELECT release_key FROM releases WHERE type <> 'agent')"),
+    db.prepare("DELETE FROM releases WHERE type <> 'agent'"),
+  ]);
   if (seedStatements.length) await db.batch(seedStatements);
   await db.prepare("PRAGMA optimize").run();
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BookOpen,
   Check,
   ClipboardCheck,
   Download,
@@ -13,13 +12,13 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteNav } from "@/components/site-nav";
 import { useState } from "react";
-import { AGENT_CATEGORIES, type AgentCategory } from "@/lib/hive-contract";
+import { AGENT_CATEGORIES, AGENT_HARNESSES, type AgentCategory, type AgentHarness } from "@/lib/hive-contract";
 import type { AgentSnapshotScanResult } from "@/lib/snapshot-scan";
 
-const GITHUB_REPOSITORY = "https://github.com/fuckbroccoli/hivebuzz";
+const GITHUB_REPOSITORY = "https://github.com/promptprobe/hivebuzz";
 const MAX_SNAPSHOT_BYTES = 10 * 1024 * 1024;
 
 interface SelectedSnapshot {
@@ -36,6 +35,12 @@ const CATEGORY_LABELS: Record<AgentCategory, string> = {
   marketing: "Marketing",
   security: "Security",
   personal: "Personal",
+};
+const HARNESS_LABELS: Record<AgentHarness, string> = {
+  codex: "Codex",
+  claude: "Claude Code",
+  goose: "Goose",
+  "buzz-agent": "Buzz Agent",
 };
 
 function validGithubHandle(value: string) {
@@ -70,6 +75,8 @@ export function ContributeAgent() {
   const [version, setVersion] = useState("1.0.0");
   const [license, setLicense] = useState("MIT");
   const [category, setCategory] = useState<AgentCategory>("research");
+  const [recommendedHarness, setRecommendedHarness] = useState<AgentHarness>("codex");
+  const [recommendedModel, setRecommendedModel] = useState("Provider default");
   const [sourceUrl, setSourceUrl] = useState("");
   const [sourceCommit, setSourceCommit] = useState("");
   const [publisherGithub, setPublisherGithub] = useState("");
@@ -77,7 +84,9 @@ export function ContributeAgent() {
   const fieldsValid = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)
     && validSourceUrl(sourceUrl)
     && /^[a-f0-9]{40}$/i.test(sourceCommit.trim())
-    && validGithubHandle(publisherGithub);
+    && validGithubHandle(publisherGithub)
+    && recommendedModel.trim().length >= 1
+    && recommendedModel.trim().length <= 80;
   const ready = Boolean(scan?.ok && scan.suggested && fieldsValid);
 
   const issueUrl = (() => {
@@ -138,6 +147,8 @@ export function ContributeAgent() {
         version,
         license,
         category,
+        recommendedHarness,
+        recommendedModel: recommendedModel.trim(),
         sourceUrl,
       },
       publisher: {
@@ -165,16 +176,7 @@ export function ContributeAgent() {
   return (
     <div className="site-shell guide-shell">
       <header className="hero-skin submit-skin">
-        <div className="topbar skin-topbar">
-          <Link className="brand" href="/" aria-label="HiveBuzz home">
-            <span className="brand-mark" aria-hidden="true" />
-            <span>hivebuzz</span>
-          </Link>
-          <nav className="topbar-actions" aria-label="Primary navigation">
-            <a className="button button-ghost" href="https://buzz.xyz" target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" /> Buzz</a>
-            <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Guide</Link>
-          </nav>
-        </div>
+        <SiteNav current="contribute" />
         <section className="subpage-hero contribute-hero">
           <div>
             <p className="eyebrow">Contribute to HiveBuzz</p>
@@ -224,11 +226,15 @@ export function ContributeAgent() {
                 <label><span>Version</span><input value={version} onChange={(event) => setVersion(event.target.value)} inputMode="text" /></label>
                 <label><span>Category</span><select value={category} onChange={(event) => setCategory(event.target.value as AgentCategory)}>{AGENT_CATEGORIES.map((item) => <option key={item} value={item}>{CATEGORY_LABELS[item]}</option>)}</select></label>
               </div>
+              <div className="form-pair">
+                <label><span>Recommended harness</span><select value={recommendedHarness} onChange={(event) => setRecommendedHarness(event.target.value as AgentHarness)}>{AGENT_HARNESSES.map((item) => <option key={item} value={item}>{HARNESS_LABELS[item]}</option>)}</select></label>
+                <label><span>Recommended model</span><input value={recommendedModel} onChange={(event) => setRecommendedModel(event.target.value)} maxLength={80} placeholder="Provider default or a model ID" /></label>
+              </div>
               <label><span>License</span><select value={license} onChange={(event) => setLicense(event.target.value)}><option>MIT</option><option>Apache-2.0</option><option>CC0-1.0</option></select></label>
               <label><span>GitHub handle</span><input value={publisherGithub} onChange={(event) => setPublisherGithub(event.target.value)} maxLength={40} autoComplete="username" placeholder="your-github-handle" /></label>
               <label><span>Public source repository</span><input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://github.com/you/your-agent" /></label>
               <label><span>Source commit</span><input value={sourceCommit} onChange={(event) => setSourceCommit(event.target.value)} maxLength={40} spellCheck={false} placeholder="40-character Git commit SHA" /></label>
-              <p className="form-note">Open the GitHub request with the declared account. Reviewers verify the exact commit and artifact hash. Organization-owned repositories also need an approving organization maintainer.</p>
+              <p className="form-note">Harness and model are recommendations, not imported credentials or enforced runtime settings. Open the GitHub request with the declared account. Reviewers verify the exact commit and artifact hash.</p>
             </div>
           </section>
         </div>
@@ -252,6 +258,7 @@ export function ContributeAgent() {
         <section className="submission-notes">
           <div><FileJson size={19} /><p><strong>Open downloads</strong>Anyone can browse and download. Only publishing needs a public GitHub identity.</p></div>
           <div><ClipboardCheck size={19} /><p><strong>Pull-request path</strong>Technical contributors can follow <a href={`${GITHUB_REPOSITORY}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener noreferrer">CONTRIBUTING.md</a>.</p></div>
+          <div><ShieldCheck size={19} /><p><strong>Already published?</strong>The verified publisher can <a href={`${GITHUB_REPOSITORY}/issues/new?template=agent-withdrawal.yml`} target="_blank" rel="noopener noreferrer">request withdrawal</a>. Security issues stay private.</p></div>
         </section>
       </main>
 

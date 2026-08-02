@@ -1,9 +1,0 @@
-{
-  "hooks": [
-    {
-      "event": "after-run",
-      "command": "node scripts/write-run-summary.mjs",
-      "purpose": "Write an owner-visible local run summary"
-    }
-  ]
-}

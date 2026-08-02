@@ -27,9 +27,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(origin),
     title: "hivebuzz - Open Buzz Agent Library",
-    description: "A login-free library of locally verified Buzz Agent Snapshots and Persona Packs.",
+    description: "A login-free library of locally verified, portable Buzz Agent Snapshots.",
     applicationName: "hivebuzz",
-    keywords: ["Buzz", "AI agents", "Agent Snapshots", "Persona Packs", "open library"],
+    keywords: ["Buzz", "AI agents", "Agent Snapshots", "portable agents", "open library"],
     icons: { icon: "/icon.png", apple: "/icon.png" },
     openGraph: {
       title: "hivebuzz - Open Buzz Agent Library",

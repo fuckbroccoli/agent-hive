@@ -13,7 +13,7 @@ const sections = [
   },
   {
     title: "No automatic execution",
-    content: <p>Downloads are handed off as stopped files. You are responsible for reviewing the Buzz import preview, requested capabilities, model settings, prompts, hooks, commands, and MCP servers before enabling anything.</p>,
+    content: <p>Downloads are handed off as stopped files. You are responsible for reviewing the Buzz import preview, system prompt, harness, model, and agent settings before enabling anything.</p>,
   },
   {
     title: "Contributor responsibility",
@@ -24,8 +24,12 @@ const sections = [
     content: <p>Each artifact remains subject to its listed license. HiveBuzz may update, suspend, or remove listings and cannot guarantee uninterrupted availability, compatibility, or fitness for a particular purpose.</p>,
   },
   {
+    title: "Withdrawal limits",
+    content: <p>A verified publisher can ask HiveBuzz to stop future distribution. Withdrawal cannot recall prior downloads, forks, caches, or Git history.</p>,
+  },
+  {
     title: "Safe participation",
-    content: <p>Do not upload secrets, private memory, credentials, unlawful material, malware, or artifacts designed to conceal network, filesystem, command, hook, or tool access.</p>,
+    content: <p>Do not submit secrets, private memory, credentials, unlawful material, malware, or artifacts designed to conceal behavior or access.</p>,
   },
 ] as const;
 

@@ -1,0 +1,61 @@
+name: Withdraw a Buzz agent
+description: Ask HiveBuzz to stop distributing a published Agent Snapshot.
+title: "Withdraw agent: "
+labels:
+  - agent-withdrawal
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this public form for ordinary withdrawal requests. The issue author must match the published GitHub publisher, or publicly prove maintainer control of the publisher repository. For a vulnerability, exposed secret, or private data, stop and use a private Security Advisory instead.
+  - type: input
+    id: release_key
+    attributes:
+      label: Release key
+      description: Copy the catalog key in agent:id@version form.
+      placeholder: agent:agent.example@1.0.0
+    validations:
+      required: true
+  - type: input
+    id: listing
+    attributes:
+      label: HiveBuzz listing or artifact URL
+      placeholder: https://hivebuzz.xyz/ or https://hivebuzz.xyz/agents/example-1.0.0.agent.json
+    validations:
+      required: true
+  - type: input
+    id: sha256
+    attributes:
+      label: Published SHA-256
+      description: The complete 64-character digest from the listing.
+      placeholder: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+    validations:
+      required: true
+  - type: dropdown
+    id: action
+    attributes:
+      label: Requested action
+      options:
+        - Stop distribution and unlist this version
+        - Stop distribution of every version by this publisher
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Public reason
+      description: Keep this brief. Do not include vulnerability details, secrets, personal data, private prompts, or private repository information.
+      placeholder: Superseded, published by mistake, ownership change, or another non-sensitive reason.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I am opening this request from the published GitHub account, or I will provide public proof from the publisher repository.
+          required: true
+        - label: I understand HiveBuzz can stop future distribution but cannot recall existing downloads, forks, caches, or Git history.
+          required: true
+        - label: This public issue contains no security-sensitive or private material.
+          required: true

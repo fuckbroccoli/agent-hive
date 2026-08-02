@@ -1,9 +1,0 @@
-{
-  "servers": {
-    "github-readonly": {
-      "transport": "stdio",
-      "command": "github-mcp-server",
-      "args": ["--toolsets", "repos,pull_requests", "--read-only"]
-    }
-  }
-}

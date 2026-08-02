@@ -1,5 +1,6 @@
 import {
   AGENT_CATEGORIES,
+  AGENT_HARNESSES,
   CATALOG_SCHEMA,
   releaseKeyFor,
   type ReleaseCapabilities,
@@ -75,8 +76,7 @@ function hasSecretMaterial(value: unknown, path = "manifest"): string[] {
 function validateUrl(value: unknown, allowRelativeArtifact: boolean) {
   if (typeof value !== "string" || value.length > 2_048) return false;
   if (allowRelativeArtifact && (
-    /^\/packs\/[a-z0-9._-]+\.buzzpack$/i.test(value)
-    || /^\/agents\/[a-z0-9._-]+\.agent\.(?:json|png)$/i.test(value)
+    /^\/agents\/[a-z0-9._-]+\.agent\.(?:json|png)$/i.test(value)
   )) return true;
   try {
     const url = new URL(value);
@@ -101,7 +101,7 @@ function validateMetadata(input: unknown, errors: string[]): input is ReleaseMet
     errors.push("Release metadata is required.");
     return false;
   }
-  validateAllowedKeys(input, ["id", "name", "version", "category", "summary", "description", "license", "homepage", "keywords", "engines"], "Release metadata", errors);
+  validateAllowedKeys(input, ["id", "name", "version", "category", "summary", "description", "license", "homepage", "keywords", "engines", "recommendedHarness", "recommendedModel"], "Release metadata", errors);
   if (typeof input.id !== "string" || !RELEASE_ID.test(input.id)) errors.push("Release id is invalid.");
   if (!isShortString(input.name, 2, 60)) errors.push("Release name must be 2–60 characters.");
   if (typeof input.version !== "string" || !SEMVER.test(input.version) || input.version.length > 32) errors.push("Release version must use semantic versioning.");
@@ -116,32 +116,24 @@ function validateMetadata(input: unknown, errors: string[]): input is ReleaseMet
   } else {
     validateAllowedKeys(input.engines, ["buzz"], "Engine compatibility", errors);
   }
+  if (!AGENT_HARNESSES.includes(input.recommendedHarness as (typeof AGENT_HARNESSES)[number])) errors.push("Recommended Agent harness is invalid.");
+  if (!isShortString(input.recommendedModel, 1, 80)) errors.push("Recommended model must be 1–80 characters.");
   return true;
 }
 
-function validateContents(input: unknown, type: "agent" | "pack", errors: string[]): input is ReleaseContents {
+function validateContents(input: unknown, errors: string[]): input is ReleaseContents {
   if (!isRecord(input)) {
     errors.push("Release contents summary is required.");
     return false;
   }
   validateAllowedKeys(input, ["agents", "skills", "mcpServers", "hooks"], "Contents summary", errors);
-  if (type === "agent") {
-    if (input.agents !== 1 || input.skills !== 0 || input.mcpServers !== 0 || input.hooks !== 0) {
-      errors.push("Agent snapshots must contain exactly one agent and no bundled skills, MCP servers, or hooks.");
-    }
-    return true;
-  }
-  const limits: Record<string, [number, number]> = {
-    agents: [1, 32], skills: [0, 128], mcpServers: [0, 32], hooks: [0, 64],
-  };
-  for (const [key, [min, max]] of Object.entries(limits)) {
-    const count = input[key];
-    if (!Number.isInteger(count) || Number(count) < min || Number(count) > max) errors.push(`${key} count is invalid.`);
+  if (input.agents !== 1 || input.skills !== 0 || input.mcpServers !== 0 || input.hooks !== 0) {
+    errors.push("Agent snapshots must contain exactly one agent and no bundled skills, MCP servers, or hooks.");
   }
   return true;
 }
 
-function validateCapabilities(input: unknown, type: "agent" | "pack", errors: string[]): input is ReleaseCapabilities {
+function validateCapabilities(input: unknown, errors: string[]): input is ReleaseCapabilities {
   if (!isRecord(input)) {
     errors.push("Capability declaration is required.");
     return false;
@@ -180,13 +172,13 @@ function validateCapabilities(input: unknown, type: "agent" | "pack", errors: st
   if (hooks.some((hook) => isRecord(hook) && typeof hook.command === "string" && composed.test(hook.command))) errors.push("Shell composition is not allowed in hook commands.");
   if (servers.some((server) => isRecord(server) && typeof server.command === "string" && composed.test(server.command))) errors.push("Shell composition is not allowed in MCP commands.");
 
-  if (type === "agent" && (
+  if (
     input.filesystem !== "none"
     || commands.length > 0
     || hooks.length > 0
     || servers.length > 0
     || (Array.isArray(input.networkHosts) && input.networkHosts.length > 0)
-  )) errors.push("Agent snapshots cannot declare executable, network, filesystem, hook, or MCP capabilities.");
+  ) errors.push("Agent snapshots cannot declare executable, network, filesystem, hook, or MCP capabilities.");
   return true;
 }
 
@@ -200,8 +192,7 @@ export function validateManifest(
 
   validateAllowedKeys(input, ["schema", "type", "contributorName", "release", "artifact", "contents", "capabilities", "snapshot"], "Release manifest", errors);
   if (input.schema !== CATALOG_SCHEMA) errors.push("Unsupported catalog schema.");
-  if (input.type !== "agent" && input.type !== "pack") errors.push("Release type must be agent or pack.");
-  const type = input.type === "agent" ? "agent" : "pack";
+  if (input.type !== "agent") errors.push("Release type must be agent.");
   if (input.contributorName !== undefined && !isShortString(input.contributorName, 1, 60)) errors.push("Contributor name must be 60 characters or fewer.");
   validateMetadata(input.release, errors);
 
@@ -211,31 +202,23 @@ export function validateManifest(
     validateAllowedKeys(input.artifact, ["url", "sha256", "sizeBytes", "mediaType"], "Artifact metadata", errors);
     if (!validateUrl(input.artifact.url, allowRelativeArtifact)) errors.push("Artifact URL must use public HTTPS or an approved local catalog path.");
     if (typeof input.artifact.sha256 !== "string" || !HEX_64.test(input.artifact.sha256)) errors.push("Artifact SHA-256 is invalid.");
-    const maxSize = type === "agent"
-      ? input.artifact.mediaType === "image/png" ? 10 * 1024 * 1024 : 5 * 1024 * 1024
-      : 25 * 1024 * 1024;
+    const maxSize = input.artifact.mediaType === "image/png" ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
     if (!Number.isInteger(input.artifact.sizeBytes) || Number(input.artifact.sizeBytes) < 1 || Number(input.artifact.sizeBytes) > maxSize) errors.push(`Artifact size must be between 1 byte and ${maxSize / 1024 / 1024} MiB.`);
-    if (type === "agent" && !["application/vnd.buzz.agent-snapshot+json", "image/png"].includes(String(input.artifact.mediaType))) errors.push("Agent artifact media type is invalid.");
-    if (type === "agent" && input.artifact.mediaType === "image/png" && !artifactPathEndsWith(input.artifact.url, ".agent.png")) errors.push("PNG Agent artifact URL must end with .agent.png.");
-    if (type === "agent" && input.artifact.mediaType === "application/vnd.buzz.agent-snapshot+json" && !artifactPathEndsWith(input.artifact.url, ".agent.json")) errors.push("JSON Agent artifact URL must end with .agent.json.");
-    if (type === "pack" && input.artifact.mediaType !== "application/vnd.buzz.persona-pack+zip") errors.push("Pack artifact media type is invalid.");
-    if (type === "pack" && input.artifact.mediaType === "application/vnd.buzz.persona-pack+zip" && !artifactPathEndsWith(input.artifact.url, ".buzzpack")) errors.push("Pack artifact URL must end with .buzzpack.");
+    if (!["application/vnd.buzz.agent-snapshot+json", "image/png"].includes(String(input.artifact.mediaType))) errors.push("Agent artifact media type is invalid.");
+    if (input.artifact.mediaType === "image/png" && !artifactPathEndsWith(input.artifact.url, ".agent.png")) errors.push("PNG Agent artifact URL must end with .agent.png.");
+    if (input.artifact.mediaType === "application/vnd.buzz.agent-snapshot+json" && !artifactPathEndsWith(input.artifact.url, ".agent.json")) errors.push("JSON Agent artifact URL must end with .agent.json.");
   }
 
-  validateContents(input.contents, type, errors);
-  validateCapabilities(input.capabilities, type, errors);
-  if (type === "agent") {
-    const snapshot = input.snapshot;
-    validateAllowedKeys(snapshot, ["format", "version", "memoryLevel", "identityPolicy", "sourceAllowlist"], "Snapshot policy", errors);
-    if (!isRecord(snapshot)
-      || snapshot.format !== "buzz-agent-snapshot"
-      || snapshot.version !== 1
-      || snapshot.memoryLevel !== "none"
-      || snapshot.identityPolicy !== "fresh-on-import"
-      || snapshot.sourceAllowlist !== "cleared-on-import") errors.push("Agent snapshot safety policy is missing or invalid.");
-  } else if (input.snapshot !== undefined) {
-    errors.push("Pack releases cannot include an Agent snapshot policy.");
-  }
+  validateContents(input.contents, errors);
+  validateCapabilities(input.capabilities, errors);
+  const snapshot = input.snapshot;
+  validateAllowedKeys(snapshot, ["format", "version", "memoryLevel", "identityPolicy", "sourceAllowlist"], "Snapshot policy", errors);
+  if (!isRecord(snapshot)
+    || snapshot.format !== "buzz-agent-snapshot"
+    || snapshot.version !== 1
+    || snapshot.memoryLevel !== "none"
+    || snapshot.identityPolicy !== "fresh-on-import"
+    || snapshot.sourceAllowlist !== "cleared-on-import") errors.push("Agent snapshot safety policy is missing or invalid.");
   if (hasSecretMaterial(input).length) errors.push("Possible secret or private identity material is present.");
 
   return errors.length

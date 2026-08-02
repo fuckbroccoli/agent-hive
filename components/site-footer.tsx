@@ -40,7 +40,8 @@ export function SiteFooter() {
       <nav className="footer-links" aria-label="Footer navigation">
         <Link href="/privacy">Privacy_Protocol</Link>
         <Link href="/terms">Terms_of_Use</Link>
-        <a href="https://github.com/fuckbroccoli/hivebuzz/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" aria-label="Contribute to HiveBuzz on GitHub">Conbribue_hivebuzz</a>
+        <a href="https://github.com/promptprobe/hivebuzz/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" aria-label="Contribute to HiveBuzz on GitHub">Contribute_hivebuzz</a>
+        <a href="https://github.com/promptprobe/hivebuzz/issues/new?template=agent-withdrawal.yml" target="_blank" rel="noopener noreferrer">Withdraw_Agent</a>
       </nav>
     </footer>
   );

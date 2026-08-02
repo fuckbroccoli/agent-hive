@@ -13,7 +13,7 @@ const sections = [
   },
   {
     title: "Local file inspection",
-    content: <p>Snapshot and Persona Pack checks run in your browser. Files selected on the submission page are not uploaded to HiveBuzz. A file leaves your device only when you deliberately attach it to a public GitHub request.</p>,
+    content: <p>Agent Snapshot checks run in your browser. Files selected on the submission page are not uploaded to HiveBuzz. A file leaves your device only when you deliberately attach it to a public GitHub request.</p>,
   },
   {
     title: "Aggregate download counts",
@@ -21,7 +21,7 @@ const sections = [
   },
   {
     title: "Hosting and public requests",
-    content: <p>The hosting provider may process ordinary security and delivery logs. GitHub applies its own privacy terms when you open a contribution request or follow a repository link.</p>,
+    content: <p>The hosting provider may process ordinary security and delivery logs. Publisher identity, source, category, recommended harness, and recommended model become public when you open a GitHub contribution request. GitHub applies its own privacy terms.</p>,
   },
   {
     title: "Security reports",

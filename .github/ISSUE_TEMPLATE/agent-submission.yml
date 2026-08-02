@@ -56,6 +56,26 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: recommended_harness
+    attributes:
+      label: Recommended Agent harness
+      description: A public recommendation only. HiveBuzz does not install or authenticate a harness.
+      options:
+        - Codex
+        - Claude Code
+        - Goose
+        - Buzz Agent
+    validations:
+      required: true
+  - type: input
+    id: recommended_model
+    attributes:
+      label: Recommended model
+      description: Use a reviewable model name or Provider default. This is not an enforced runtime setting.
+      placeholder: Provider default
+    validations:
+      required: true
+  - type: dropdown
     id: license
     attributes:
       label: License

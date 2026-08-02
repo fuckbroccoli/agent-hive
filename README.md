@@ -2,9 +2,9 @@
 
 **Open Buzz Agent Library.**
 
-HiveBuzz is a small, login-free library for portable Buzz agents. Agent
-Snapshots (`.agent.json` or `.agent.png`) are the safe default; Persona Packs
-(`.buzzpack`) remain an explicit advanced lane.
+HiveBuzz is a small, login-free library for portable Buzz Agent Snapshots
+(`.agent.json` or `.agent.png`). It deliberately has one artifact type and one
+job: review exact bytes before handing a stopped agent to Buzz Desktop.
 
 - Live library: [hivebuzz.xyz](https://hivebuzz.xyz)
 - Contribute an agent: [CONTRIBUTING.md](CONTRIBUTING.md)
@@ -20,9 +20,6 @@ account, connect a wallet, or install anything in the background.
 - Agent Snapshot checks reject plaintext memory, source-environment allowlists,
   remote avatar beacons, unknown fields, private keys, common secret patterns,
   and bundled executable capabilities.
-- Pack checks bound compressed and expanded size, reject unsafe paths and nested
-  archives, scan text for secrets, and expose MCP, command, filesystem, network,
-  and Hook requests before download.
 - External artifact URLs are never fetched automatically. The user downloads
   and selects the file, preventing local-network and redirect probing.
 - A verified download is still stopped data. Buzz provides the final import
@@ -38,13 +35,6 @@ account, connect a wallet, or install anything in the background.
 3. Download the verified `.agent.json` or `.agent.png`.
 4. Drag it into Buzz Desktop's Agents page, review Buzz's import preview, and
    confirm. Buzz creates a fresh local identity; private state is not included.
-
-Persona Packs follow the same verify-and-download handoff. For an additional
-CLI review, run:
-
-```bash
-buzz pack inspect <file.buzzpack>
-```
 
 HiveBuzz does not emit an unsupported deep link or silently bridge into a
 logged-in Desktop or CLI session.
@@ -88,6 +78,19 @@ This keeps the public site focused on discovery and safe handoff while avoiding
 a HiveBuzz account system, Nostr signing risk, anonymous publication, and a
 spam-ready write API. Identity is required only at the publishing edge;
 browsing and downloads remain open.
+
+## Withdraw a published agent
+
+The published GitHub account, or a maintainer of its declared source repository,
+can open the [withdrawal form](https://github.com/promptprobe/hivebuzz/issues/new?template=agent-withdrawal.yml).
+HiveBuzz verifies that control against the original publisher and pinned source,
+then removes the listing and hosted artifact. Vulnerabilities, exposed secrets,
+and private data must use a
+[private security advisory](https://github.com/promptprobe/hivebuzz/security/advisories/new),
+not a public issue.
+
+Withdrawal stops future HiveBuzz distribution. It cannot recall prior downloads,
+forks, browser caches, or Git history.
 
 ## Development
 

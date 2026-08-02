@@ -3,7 +3,6 @@ import {
   Bot,
   Check,
   Download,
-  ExternalLink,
   FileJson,
   KeyRound,
   LockKeyhole,
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteNav } from "@/components/site-nav";
 
 const exportSteps = [
   ["Open Agents", "In Buzz Desktop, open Agents from the left sidebar."],
@@ -50,16 +50,7 @@ export function SnapshotGuide() {
   return (
     <div className="site-shell guide-shell">
       <header className="hero-skin guide-skin">
-        <div className="topbar skin-topbar">
-          <Link className="brand" href="/" aria-label="HiveBuzz home">
-            <span className="brand-mark" aria-hidden="true" />
-            <span>hivebuzz</span>
-          </Link>
-          <nav className="topbar-actions" aria-label="Primary navigation">
-            <a className="button button-ghost" href="https://buzz.xyz" target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" /> Buzz</a>
-            <Link className="button button-ghost" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit</Link>
-          </nav>
-        </div>
+        <SiteNav current="guide" />
         <section className="subpage-hero guide-hero">
           <div>
             <p className="eyebrow">Buzz Agent Snapshot guide</p>
@@ -160,7 +151,7 @@ export function SnapshotGuide() {
           </div>
           <div className="guide-note">
             <FileJson size={20} aria-hidden="true" />
-            <div><h2>Can I export from the CLI?</h2><p>The supported Agent Snapshot export path is currently Buzz Desktop. <code>buzz pack inspect</code> reviews Persona Packs; it does not export Agent Snapshots.</p></div>
+            <div><h2>Can I export from the CLI?</h2><p>The supported Agent Snapshot export path is currently Buzz Desktop. HiveBuzz does not advertise an unverified CLI export command.</p></div>
           </div>
           <div className="guide-note">
             <Bot size={20} aria-hidden="true" />

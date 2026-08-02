@@ -31,7 +31,10 @@ Buzz key, real name, or email is requested.
    filesystem access, or network hosts.
 5. Use one category: `research`, `development`, `design`, `operations`, `data`,
    `marketing`, `security`, or `personal`.
-6. Run:
+6. Declare a recommended Agent harness (`codex`, `claude`, `goose`, or
+   `buzz-agent`) and recommended model. These are public compatibility hints,
+   not credentials or enforced runtime settings.
+7. Run:
 
    ```bash
    npm ci
@@ -40,8 +43,13 @@ Buzz key, real name, or email is requested.
    npx tsc --noEmit
    ```
 
-7. Open a pull request using the agent-submission template from the declared
+8. Open a pull request using the agent-submission template from the declared
    publisher account.
+
+Fork pull requests are treated as untrusted data and do not run contributor
+code in GitHub Actions. A maintainer first reviews the diff, artifact digest,
+publisher, source repository, and pinned commit. Full checks run only from a
+maintainer-owned branch in an isolated environment.
 
 ## Publication rules
 
@@ -63,3 +71,18 @@ Buzz key, real name, or email is requested.
 
 Never put credentials, private repository URLs, personal data, or active Nostr
 keys in an issue, pull request, snapshot, or receipt.
+
+## Withdraw a published agent
+
+1. Open the [agent withdrawal form](https://github.com/promptprobe/hivebuzz/issues/new?template=agent-withdrawal.yml)
+   from the published GitHub account. A maintainer of the declared source
+   repository may instead provide public proof of control.
+2. Supply the release key, listing or artifact URL, and exact published SHA-256.
+3. A HiveBuzz maintainer verifies the requester against the original publisher
+   and pinned source commit.
+4. HiveBuzz first blocks new downloads, then removes the catalog record and
+   hosted artifact and verifies the public URL no longer distributes it.
+
+For a vulnerability, exposed secret, or private data, do not use a public issue.
+Use a [private security advisory](https://github.com/promptprobe/hivebuzz/security/advisories/new).
+Withdrawal cannot recall existing downloads, forks, caches, or Git history.

@@ -1,6 +1,6 @@
 import { ensureDatabase, getD1 } from "@/db";
 
-const RELEASE_KEY = /^(?:agent|pack):[a-z0-9][a-z0-9._-]{1,79}@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
+const RELEASE_KEY = /^agent:[a-z0-9][a-z0-9._-]{1,79}@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 
 function json(data: unknown, init: ResponseInit = {}) {
   const headers = new Headers(init.headers);

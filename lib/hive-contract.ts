@@ -2,7 +2,9 @@ export const CATALOG_SCHEMA = "xyz.hivebuzz.catalog/v1";
 
 export type FilesystemAccess = "none" | "read-only" | "project-write";
 export type RiskLevel = "low" | "review" | "elevated";
-export type ReleaseType = "agent" | "pack";
+export type ReleaseType = "agent";
+export const AGENT_HARNESSES = ["codex", "claude", "goose", "buzz-agent"] as const;
+export type AgentHarness = (typeof AGENT_HARNESSES)[number];
 export const AGENT_CATEGORIES = [
   "research",
   "development",
@@ -38,6 +40,8 @@ export interface ReleaseMetadata {
   homepage?: string;
   keywords: string[];
   engines: { buzz: string };
+  recommendedHarness: AgentHarness;
+  recommendedModel: string;
 }
 
 export interface ReleaseContents {
@@ -66,8 +70,7 @@ export interface ReleaseManifest {
     sizeBytes: number;
     mediaType:
       | "application/vnd.buzz.agent-snapshot+json"
-      | "image/png"
-      | "application/vnd.buzz.persona-pack+zip";
+      | "image/png";
   };
   contents: ReleaseContents;
   capabilities: ReleaseCapabilities;
