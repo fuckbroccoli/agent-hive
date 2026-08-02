@@ -71,7 +71,9 @@ test("server-renders the finished HiveBuzz product", async () => {
   assert.match(html, /Contribute_hivebuzz/);
   assert.match(html, /Withdraw_Agent/);
   assert.doesNotMatch(html, /Connect signer|Give Honey|Sign & publish|Recent signed/i);
-  assert.match(html, /<meta property="og:image" content="https?:\/\/[^\"]+\/hivebuzz-social-card-20260803\.png"\/>/);
+  assert.match(html, /<meta property="og:url" content="https?:\/\/[^\"]+\/\?card=20260803-final"\/>/);
+  assert.match(html, /<meta property="og:image" content="https?:\/\/[^\"]+\/hivebuzz-social-card-20260803\.png\?card=20260803-final"\/>/);
+  assert.match(html, /<meta name="twitter:image" content="https?:\/\/[^\"]+\/hivebuzz-social-card-20260803\.png\?card=20260803-final"\/>/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
 
