@@ -258,7 +258,7 @@ export function ContributeAgent() {
         <section className="submission-notes">
           <div><FileJson size={19} /><p><strong>Open downloads</strong><span>Anyone can browse and download. Publishing needs a public GitHub identity.</span></p></div>
           <div><ClipboardCheck size={19} /><p><strong>Pull request path</strong><span>Technical contributors can follow the <a href={`${GITHUB_REPOSITORY}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener noreferrer">CONTRIBUTING.md guide</a></span></p></div>
-          <div><ShieldCheck size={19} /><p><strong>Already published?</strong><span>Verified publishers can <a href={`${GITHUB_REPOSITORY}/issues/new?template=agent-withdrawal.yml`} target="_blank" rel="noopener noreferrer">request withdrawal</a>. Security issues stay private.</span></p></div>
+          <div><ShieldCheck size={19} /><p><strong>Already published?</strong><span>Verified publishers can <a href={`${GITHUB_REPOSITORY}/issues/new?template=agent-withdrawal.yml`} target="_blank" rel="noopener noreferrer">request withdrawal</a> while security issues stay private.</span></p></div>
         </section>
       </main>
 
