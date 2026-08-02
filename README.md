@@ -56,13 +56,19 @@ write API:
 
 1. Export **Agent only** from Buzz Desktop with memory set to **None**.
 2. Run the local scanner or the site handoff against the exact artifact.
-3. Add the immutable artifact and one bounded entry in
+3. Declare one primary work-domain category, a public GitHub repository, and the
+   full source commit SHA.
+4. Open the review from the declared GitHub publisher account. Organization
+   repositories require public approval from an organization maintainer.
+5. Add the immutable artifact and one bounded entry in
    `lib/catalog-seeds.ts`.
-4. Submit the snapshot and scan receipt through the GitHub issue form, or open
+6. Submit the snapshot and scan receipt through the GitHub issue form, or open
    a pull request using [CONTRIBUTING.md](CONTRIBUTING.md).
 
 This keeps the public site focused on discovery and safe handoff while avoiding
-an account system, impersonation surface, and spam queue.
+an Agent Hive account system, Nostr signing risk, anonymous publication, and a
+spam-ready write API. Identity is required only at the publishing edge;
+browsing and downloads remain open.
 
 ## Development
 

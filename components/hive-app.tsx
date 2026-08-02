@@ -26,7 +26,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import type { ArchiveScanResult } from "@/lib/archive-scan";
 import type { AgentSnapshotScanResult } from "@/lib/snapshot-scan";
-import type { ReleaseRecord } from "@/lib/hive-contract";
+import { AGENT_CATEGORIES, type AgentCategory, type ReleaseRecord } from "@/lib/hive-contract";
 
 type Lane = "agent" | "pack" | "all";
 
@@ -57,6 +57,16 @@ interface DialogProps {
 }
 
 const numberFormatter = new Intl.NumberFormat("en-US");
+const CATEGORY_LABELS: Record<AgentCategory, string> = {
+  research: "Research",
+  development: "Development",
+  design: "Design",
+  operations: "Operations",
+  data: "Data",
+  marketing: "Marketing",
+  security: "Security",
+  personal: "Personal",
+};
 
 function Dialog({ title, eyebrow, open, onClose, children, wide }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -150,6 +160,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
   const [selectedKey, setSelectedKey] = useState(initialAgent?.key ?? initialReleases[0]?.key ?? "");
   const [query, setQuery] = useState("");
   const [lane, setLane] = useState<Lane>("agent");
+  const [category, setCategory] = useState<"all" | AgentCategory>("all");
   const [mobileDetail, setMobileDetail] = useState(false);
   const [installRelease, setInstallRelease] = useState<ReleaseRecord | null>(null);
   const [notice, setNotice] = useState<NoticeState | null>(null);
@@ -180,9 +191,10 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
     return releases
       .filter((release) => {
         if (lane !== "all" && release.manifest.type !== lane) return false;
+        if (category !== "all" && release.manifest.release.category !== category) return false;
         if (!normalized) return true;
         const item = release.manifest.release;
-        return [item.name, item.summary, release.manifest.contributorName ?? "", ...item.keywords]
+        return [item.name, item.summary, CATEGORY_LABELS[item.category], release.manifest.contributorName ?? "", ...item.keywords]
           .join(" ")
           .toLowerCase()
           .includes(normalized);
@@ -191,7 +203,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
         if (lane === "all" && a.manifest.type !== b.manifest.type) return a.manifest.type === "agent" ? -1 : 1;
         return b.addedAt - a.addedAt;
       });
-  }, [lane, query, releases]);
+  }, [category, lane, query, releases]);
 
   const selected = visibleReleases.find((release) => release.key === selectedKey) ?? visibleReleases[0];
   const totalDownloads = releases.reduce((total, release) => total + release.downloadCount, 0);
@@ -209,19 +221,18 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
 
   return (
     <div className="site-shell">
-      <header className="topbar">
-        <a className="brand" href="#top" aria-label="HiveBuzz home">
-          <span className="brand-mark" aria-hidden="true" />
-          <span>hivebuzz</span>
-          <small>.xyz · for Buzz</small>
-        </a>
-        <nav className="topbar-actions" aria-label="Primary navigation">
-          <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Export guide</Link>
-          <Link className="button button-dark" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit agent</Link>
-        </nav>
-      </header>
-
-      <main id="top">
+      <header className="home-skin" id="top">
+        <div className="topbar home-topbar">
+          <a className="brand" href="#top" aria-label="HiveBuzz home">
+            <span className="brand-mark" aria-hidden="true" />
+            <span>hivebuzz</span>
+            <small>.xyz · for Buzz</small>
+          </a>
+          <nav className="topbar-actions" aria-label="Primary navigation">
+            <Link className="button button-ghost" href="/guide"><BookOpen size={16} aria-hidden="true" /> Export guide</Link>
+            <Link className="button button-dark" href="/contribute"><Upload size={16} aria-hidden="true" /> Submit agent</Link>
+          </nav>
+        </div>
         <section className="intro">
           <div>
             <p className="eyebrow">Open Buzz agent library</p>
@@ -236,13 +247,21 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
             </div>
           </div>
         </section>
+      </header>
 
+      <main>
         <section className={`hive-workspace ${mobileDetail ? "show-detail" : "show-list"}`} aria-label="Buzz agent library">
           <aside className="catalog-panel">
             <div className="catalog-tools">
               <div className="lane-switch" aria-label="Release type">
                 {([["agent", "Agents"], ["pack", "Packs"], ["all", "All"]] as Array<[Lane, string]>).map(([value, label]) => (
-                  <button key={value} type="button" className={lane === value ? "active" : ""} onClick={() => { setLane(value); setMobileDetail(false); }} aria-pressed={lane === value}>{label}</button>
+                  <button key={value} type="button" className={lane === value ? "active" : ""} onClick={() => { setLane(value); setCategory("all"); setMobileDetail(false); }} aria-pressed={lane === value}>{label}</button>
+                ))}
+              </div>
+              <div className="category-filter" aria-label="Agent category">
+                <button type="button" className={category === "all" ? "active" : ""} onClick={() => setCategory("all")} aria-pressed={category === "all"}>All topics</button>
+                {AGENT_CATEGORIES.map((item) => (
+                  <button key={item} type="button" className={category === item ? "active" : ""} onClick={() => setCategory(item)} aria-pressed={category === item}>{CATEGORY_LABELS[item]}</button>
                 ))}
               </div>
               <label className="search-box">
@@ -278,6 +297,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                         <span className={`type-pill type-${release.manifest.type}`}>
                           {release.manifest.type === "agent" ? <Bot size={11} /> : <Package size={11} />}{release.manifest.type}
                         </span>
+                        <span className="category-pill">{CATEGORY_LABELS[item.category]}</span>
                         <RiskLabel release={release} />
                       </span>
                       <span className="download-count"><Download size={12} aria-hidden="true" /> {numberFormatter.format(release.downloadCount)}</span>
@@ -289,7 +309,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                 <div className="empty-state">
                   <Search size={24} aria-hidden="true" />
                   <strong>No matching releases</strong>
-                  <span>Try a broader search.</span>
+                  <span>Try another topic or a broader search.</span>
                 </div>
               ) : null}
             </div>
@@ -308,6 +328,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                         <div className="detail-kicker">
                           <RiskLabel release={selected} />
                           <span className={`type-pill type-${selected.manifest.type}`}>{selected.manifest.type}</span>
+                          <span className="category-pill">{CATEGORY_LABELS[selected.manifest.release.category]}</span>
                           <span>v{selected.manifest.release.version}</span>
                           <span>{selected.manifest.release.license}</span>
                         </div>
@@ -358,7 +379,7 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
                   <div className="detail-section">
                     <p className="section-label">Before download</p>
                     <div className="checks-list">
-                      <CheckRow icon={<ShieldCheck size={18} />} title="Curated catalog record" detail="The metadata and artifact digest are reviewed in source. Contributor labels are not identity proof." />
+                      <CheckRow icon={<ShieldCheck size={18} />} title="Curated catalog record" detail="Public submissions require a GitHub publisher and pinned source commit. Project-owned examples are maintained in this repository." />
                       <CheckRow icon={<Hash size={18} />} title="Exact SHA-256 pinned" detail="A one-byte change blocks the final handoff." />
                       {selected.manifest.type === "agent" ? (
                         <CheckRow icon={<LockKeyhole size={18} />} title="Private state excluded" detail="Memory, source allowlists, remote avatars, credentials, and bundled executable tools are rejected locally." />

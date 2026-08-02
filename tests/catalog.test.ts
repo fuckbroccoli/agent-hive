@@ -15,6 +15,7 @@ test("accepts every bounded catalog release with a stable key", () => {
     assert.equal(validation.ok, true, validation.errors.join(" "));
     assert.equal(release.key, releaseKeyFor(release.manifest));
     assert.equal(release.downloadCount, 0);
+    assert.ok(["research", "development", "design", "operations", "data", "marketing", "security", "personal"].includes(release.manifest.release.category));
     assert.deepEqual(recordFromManifest(release.manifest, release.addedAt), release);
   }
 });
@@ -36,6 +37,10 @@ test("rejects hidden fields, unsafe Agent capabilities, secrets, and bad artifac
   const badUrl = structuredClone(base);
   badUrl.artifact.url = "/agents/download";
   assert.match(validateManifest(badUrl, { allowRelativeArtifact: true }).errors.join(" "), /approved local catalog path|must end with/i);
+
+  const badCategory = structuredClone(base) as unknown as { release: { category: string } };
+  badCategory.release.category = "uncategorized";
+  assert.match(validateManifest(badCategory, { allowRelativeArtifact: true }).errors.join(" "), /category is invalid/i);
 });
 
 test("every bundled catalog artifact passes the exact browser handoff scanner", async () => {

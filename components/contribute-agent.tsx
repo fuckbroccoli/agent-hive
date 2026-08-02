@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { AGENT_CATEGORIES, type AgentCategory } from "@/lib/hive-contract";
 import type { AgentSnapshotScanResult } from "@/lib/snapshot-scan";
 
 const GITHUB_REPOSITORY = "https://github.com/fuckbroccoli/agent-hive";
@@ -26,9 +27,37 @@ interface SelectedSnapshot {
   size: number;
 }
 
+const CATEGORY_LABELS: Record<AgentCategory, string> = {
+  research: "Research",
+  development: "Development",
+  design: "Design",
+  operations: "Operations",
+  data: "Data",
+  marketing: "Marketing",
+  security: "Security",
+  personal: "Personal",
+};
+
+function validGithubHandle(value: string) {
+  const handle = value.trim().replace(/^@/, "");
+  return /^[A-Za-z0-9-]{1,39}$/.test(handle)
+    && !handle.startsWith("-")
+    && !handle.endsWith("-")
+    && !handle.includes("--");
+}
+
 function validSourceUrl(value: string) {
   try {
-    return new URL(value).protocol === "https:";
+    const url = new URL(value);
+    const parts = url.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+    return url.protocol === "https:"
+      && url.hostname === "github.com"
+      && !url.username
+      && !url.password
+      && !url.search
+      && !url.hash
+      && parts.length === 2
+      && parts.every((part) => /^[A-Za-z0-9._-]+$/.test(part));
   } catch {
     return false;
   }
@@ -40,12 +69,15 @@ export function ContributeAgent() {
   const [busy, setBusy] = useState(false);
   const [version, setVersion] = useState("1.0.0");
   const [license, setLicense] = useState("MIT");
+  const [category, setCategory] = useState<AgentCategory>("research");
   const [sourceUrl, setSourceUrl] = useState("");
-  const [contributorName, setContributorName] = useState("");
+  const [sourceCommit, setSourceCommit] = useState("");
+  const [publisherGithub, setPublisherGithub] = useState("");
 
   const fieldsValid = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)
     && validSourceUrl(sourceUrl)
-    && contributorName.trim().length <= 80;
+    && /^[a-f0-9]{40}$/i.test(sourceCommit.trim())
+    && validGithubHandle(publisherGithub);
   const ready = Boolean(scan?.ok && scan.suggested && fieldsValid);
 
   const issueUrl = (() => {
@@ -93,7 +125,7 @@ export function ContributeAgent() {
   const downloadReceipt = () => {
     if (!ready || !scan?.suggested || !selected) return;
     const receipt = {
-      schema: "agent-hive-submission/v1",
+      schema: "agent-hive-submission/v2",
       createdAt: new Date().toISOString(),
       artifact: {
         fileName: selected.name,
@@ -105,9 +137,15 @@ export function ContributeAgent() {
         ...scan.suggested,
         version,
         license,
+        category,
         sourceUrl,
       },
-      contributor: contributorName.trim() || null,
+      publisher: {
+        github: publisherGithub.trim().replace(/^@/, ""),
+        sourceRepository: sourceUrl,
+        sourceCommit: sourceCommit.trim().toLowerCase(),
+        verification: "github-issue-author-and-source-commit",
+      },
       scan: {
         checks: scan.checks,
         warnings: scan.warnings,
@@ -144,13 +182,13 @@ export function ContributeAgent() {
             <p className="eyebrow">Contribute to Agent Hive</p>
             <h1>Register your<br />Buzz agent.</h1>
           </div>
-          <p>Export a memory-free snapshot, scan it on this device, then open a public review request. Agent Hive never receives the file from this page.</p>
+          <p>Downloads stay account-free. To register, prove control through a public GitHub account and one pinned source commit. Agent Hive never receives the file from this page.</p>
         </section>
 
         <section className="contribution-boundary" aria-label="Submission security boundary">
-          <div><LockKeyhole size={20} /><span><strong>No Agent Hive login</strong>Your Buzz and Nostr keys stay out of the flow.</span></div>
+          <div><LockKeyhole size={20} /><span><strong>Public GitHub identity</strong>The issue author must match the declared publisher. No Nostr or Buzz key is requested.</span></div>
           <div><ShieldCheck size={20} /><span><strong>Local scan first</strong>The selected file never leaves this browser.</span></div>
-          <div><GitPullRequest size={20} /><span><strong>Public review</strong>Publication happens only after source review.</span></div>
+          <div><GitPullRequest size={20} /><span><strong>Pinned source review</strong>Publication requires a reviewable repository, full commit SHA, and human approval.</span></div>
         </section>
 
         <div className="contribute-grid">
@@ -184,11 +222,13 @@ export function ContributeAgent() {
               <label><span>Agent name</span><input value={scan?.suggested?.name ?? ""} readOnly placeholder="Read from a passing snapshot" /></label>
               <div className="form-pair">
                 <label><span>Version</span><input value={version} onChange={(event) => setVersion(event.target.value)} inputMode="text" /></label>
-                <label><span>License</span><select value={license} onChange={(event) => setLicense(event.target.value)}><option>MIT</option><option>Apache-2.0</option><option>CC0-1.0</option></select></label>
+                <label><span>Category</span><select value={category} onChange={(event) => setCategory(event.target.value as AgentCategory)}>{AGENT_CATEGORIES.map((item) => <option key={item} value={item}>{CATEGORY_LABELS[item]}</option>)}</select></label>
               </div>
-              <label><span>Public source URL</span><input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://github.com/you/your-agent" /></label>
-              <label><span>Contributor name <small>(optional)</small></span><input value={contributorName} onChange={(event) => setContributorName(event.target.value)} maxLength={80} placeholder="Shown as a label, not identity proof" /></label>
-              <p className="form-note">A public HTTPS source and an explicit license are required. Agent Hive does not verify contributor identity.</p>
+              <label><span>License</span><select value={license} onChange={(event) => setLicense(event.target.value)}><option>MIT</option><option>Apache-2.0</option><option>CC0-1.0</option></select></label>
+              <label><span>GitHub handle</span><input value={publisherGithub} onChange={(event) => setPublisherGithub(event.target.value)} maxLength={40} autoComplete="username" placeholder="your-github-handle" /></label>
+              <label><span>Public source repository</span><input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://github.com/you/your-agent" /></label>
+              <label><span>Source commit</span><input value={sourceCommit} onChange={(event) => setSourceCommit(event.target.value)} maxLength={40} spellCheck={false} placeholder="40-character Git commit SHA" /></label>
+              <p className="form-note">Open the GitHub request with the declared account. Reviewers verify the exact commit and artifact hash. Organization-owned repositories also need an approving organization maintainer.</p>
             </div>
           </section>
         </div>
@@ -197,7 +237,7 @@ export function ContributeAgent() {
           <div>
             <p className="eyebrow">Step 3 · human review</p>
             <h2 id="submit-title">Open the registration request</h2>
-            <p>Download the scan receipt, then open GitHub and attach both the original snapshot and receipt. A maintainer verifies the bytes, source, license, and listing before publication.</p>
+            <p>Download the scan receipt, then open GitHub with the declared publisher account and attach both the original snapshot and receipt. A maintainer verifies the issue author, pinned commit, bytes, license, and listing before publication.</p>
           </div>
           <div className="submission-actions">
             <button className="button button-outline button-large" type="button" onClick={downloadReceipt} disabled={!ready}>
@@ -210,7 +250,7 @@ export function ContributeAgent() {
         </section>
 
         <section className="submission-notes">
-          <div><FileJson size={19} /><p><strong>No-code path</strong>Use the GitHub registration form and attach the two files. Maintainers prepare the catalog change.</p></div>
+          <div><FileJson size={19} /><p><strong>Open downloads</strong>Anyone can browse and download. Only publishing needs a public GitHub identity.</p></div>
           <div><ClipboardCheck size={19} /><p><strong>Pull-request path</strong>Technical contributors can follow <a href={`${GITHUB_REPOSITORY}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener noreferrer">CONTRIBUTING.md</a>.</p></div>
         </section>
       </main>

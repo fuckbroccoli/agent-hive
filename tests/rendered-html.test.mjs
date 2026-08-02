@@ -36,6 +36,8 @@ test("server-renders the finished Agent Hive product", async () => {
   assert.match(html, /0(?:<!-- -->)? downloads/);
   assert.match(html, /Downloads show activity, not safety/);
   assert.match(html, /Submit agent/);
+  assert.match(html, /All topics/);
+  assert.match(html, /Research/);
   assert.match(html, /Read the full export and import guide/);
   assert.doesNotMatch(html, /Connect signer|Give Honey|Sign & publish|Recent signed/i);
   assert.match(html, /<meta property="og:image" content="https?:\/\/[^\"]+\/og\.png"\/>/);
@@ -62,8 +64,11 @@ test("server-renders the local-first agent registration flow", async () => {
   assert.match(html, /Register your/);
   assert.match(html, /Agent Hive never receives the file from this page/);
   assert.match(html, /Local scan first/);
+  assert.match(html, /Public GitHub identity/);
+  assert.match(html, /GitHub handle/);
+  assert.match(html, /Source commit/);
+  assert.match(html, /Open downloads/);
   assert.match(html, /Open GitHub request/);
-  assert.match(html, /public source review/i);
   assert.doesNotMatch(html, /Nostr sign|Connect wallet|Upload to Agent Hive/i);
 });
 

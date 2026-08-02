@@ -7,13 +7,45 @@ body:
   - type: markdown
     attributes:
       value: |
-        This request is public. Never include credentials, private keys, memory, private source URLs, or personal data.
+        Downloads are open and login-free. Registration is a public review: the GitHub account opening this issue must match the declared publisher. Never include credentials, private keys, memory, private source URLs, or personal data.
+  - type: input
+    id: publisher
+    attributes:
+      label: Publisher GitHub handle
+      description: Must match the account opening this issue. Organization repositories also require approval from an organization maintainer.
+      placeholder: your-github-handle
+    validations:
+      required: true
   - type: input
     id: source
     attributes:
-      label: Public source URL
-      description: HTTPS source where reviewers can inspect the agent and its license.
+      label: Public source repository
+      description: GitHub repository where reviewers can inspect the agent and its license.
       placeholder: https://github.com/you/your-agent
+    validations:
+      required: true
+  - type: input
+    id: source_commit
+    attributes:
+      label: Source commit
+      description: Full 40-character Git SHA containing the exact release source and artifact represented by the receipt.
+      placeholder: 0123456789abcdef0123456789abcdef01234567
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Primary category
+      description: Choose one work-domain category. Risk and popularity are reviewed separately.
+      options:
+        - Research
+        - Development
+        - Design
+        - Operations
+        - Data
+        - Marketing
+        - Security
+        - Personal
     validations:
       required: true
   - type: input
@@ -49,6 +81,8 @@ body:
         - label: I exported Agent only and did not include core memory or all memories.
           required: true
         - label: The attached snapshot is the exact file represented by the receipt SHA-256.
+          required: true
+        - label: I opened this issue from the declared publisher account and control the pinned source commit, or an organization maintainer will approve it publicly.
           required: true
         - label: I reviewed the full system prompt and found no secrets, private data, or hidden executable behavior.
           required: true

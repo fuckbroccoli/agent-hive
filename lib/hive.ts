@@ -1,4 +1,5 @@
 import {
+  AGENT_CATEGORIES,
   CATALOG_SCHEMA,
   releaseKeyFor,
   type ReleaseCapabilities,
@@ -100,10 +101,11 @@ function validateMetadata(input: unknown, errors: string[]): input is ReleaseMet
     errors.push("Release metadata is required.");
     return false;
   }
-  validateAllowedKeys(input, ["id", "name", "version", "summary", "description", "license", "homepage", "keywords", "engines"], "Release metadata", errors);
+  validateAllowedKeys(input, ["id", "name", "version", "category", "summary", "description", "license", "homepage", "keywords", "engines"], "Release metadata", errors);
   if (typeof input.id !== "string" || !RELEASE_ID.test(input.id)) errors.push("Release id is invalid.");
   if (!isShortString(input.name, 2, 60)) errors.push("Release name must be 2–60 characters.");
   if (typeof input.version !== "string" || !SEMVER.test(input.version) || input.version.length > 32) errors.push("Release version must use semantic versioning.");
+  if (!AGENT_CATEGORIES.includes(input.category as (typeof AGENT_CATEGORIES)[number])) errors.push("Release category is invalid.");
   if (!isShortString(input.summary, 12, 160)) errors.push("Summary must be 12–160 characters.");
   if (!isShortString(input.description, 12, 1_200)) errors.push("Description must be 12–1,200 characters.");
   if (!isShortString(input.license, 2, 80)) errors.push("License is required.");

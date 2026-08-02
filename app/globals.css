@@ -192,40 +192,71 @@ button:disabled {
   padding: 12px 18px;
 }
 
-.intro {
-  align-items: flex-start;
+.home-skin {
   background-color: #071b2b;
   background-image:
-    linear-gradient(90deg, rgba(4, 17, 29, 0.96) 0%, rgba(4, 17, 29, 0.82) 30%, rgba(4, 17, 29, 0.2) 60%, rgba(4, 17, 29, 0.04) 100%),
-    linear-gradient(0deg, rgba(4, 17, 29, 0.66) 0%, transparent 38%),
+    linear-gradient(90deg, rgba(5, 20, 29, 0.97) 0%, rgba(5, 20, 29, 0.84) 29%, rgba(5, 20, 29, 0.22) 61%, rgba(5, 20, 29, 0.03) 100%),
+    linear-gradient(0deg, rgba(30, 25, 10, 0.58) 0%, transparent 42%),
+    linear-gradient(180deg, rgba(244, 185, 66, 0.1) 0%, transparent 36%),
     url("/agent-hive-hero-dotted.webp");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  border: 1px solid #213e48;
-  border-radius: 16px;
-  box-shadow: 0 24px 70px rgba(16, 31, 29, 0.18);
+  border-bottom: 1px solid #6e5c31;
+  box-shadow: 0 24px 70px rgba(16, 31, 29, 0.14);
   color: #fff0cf;
+  overflow: hidden;
+  position: relative;
+}
+
+.home-topbar {
+  color: #fff0cf;
+  position: relative;
+  z-index: 2;
+}
+
+.home-skin .brand {
+  color: #fff0cf;
+}
+
+.home-skin .brand small {
+  color: rgba(255, 240, 207, 0.72);
+}
+
+.home-skin .brand-mark {
+  border-color: rgba(255, 240, 207, 0.78);
+}
+
+.home-skin .button-ghost {
+  color: #fff0cf;
+}
+
+.home-skin .button-ghost:hover {
+  background: rgba(255, 240, 207, 0.13);
+}
+
+.home-skin .button-dark {
+  background: #f3c44f;
+  border-color: #f3c44f;
+  color: #171714;
+}
+
+.home-skin .button-dark:hover:not(:disabled) {
+  background: #ffd873;
+}
+
+.intro {
+  align-items: flex-start;
   display: flex;
   flex-direction: column;
   gap: 30px;
   justify-content: flex-end;
-  margin: 0 auto 28px;
-  max-width: 1384px;
-  min-height: clamp(520px, 46vw, 640px);
-  overflow: hidden;
-  padding: clamp(46px, 5.5vw, 78px);
+  margin: 0 auto;
+  max-width: 1440px;
+  min-height: clamp(500px, 43vw, 620px);
+  padding: clamp(46px, 5.5vw, 78px) 28px;
   position: relative;
-  width: calc(100% - 56px);
-}
-
-.intro::before {
-  border: 1px solid rgba(255, 232, 190, 0.28);
-  border-radius: 10px;
-  content: "";
-  inset: 11px;
-  pointer-events: none;
-  position: absolute;
+  width: 100%;
 }
 
 .intro > * {
@@ -298,7 +329,7 @@ button:disabled {
   border-radius: 16px;
   display: grid;
   grid-template-columns: minmax(330px, 0.39fr) minmax(0, 0.61fr);
-  margin: 0 auto;
+  margin: 28px auto 0;
   max-width: 1440px;
   min-height: 720px;
   overflow: hidden;
@@ -339,6 +370,38 @@ button:disabled {
   background: #fff;
   box-shadow: 0 1px 4px rgba(23, 23, 20, 0.08);
   color: var(--ink);
+}
+
+.category-filter {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  padding-bottom: 1px;
+  scrollbar-width: none;
+}
+
+.category-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.category-filter button {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 650;
+  min-height: 30px;
+  padding: 6px 10px;
+}
+
+.category-filter button:hover,
+.category-filter button.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
 }
 
 .search-box {
@@ -478,6 +541,18 @@ button:disabled {
   letter-spacing: 0.03em;
   padding: 4px 7px;
   text-transform: uppercase;
+}
+
+.category-pill {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: #4d4c46;
+  display: inline-flex;
+  font-size: 9px;
+  font-weight: 680;
+  letter-spacing: 0.02em;
+  padding: 4px 7px;
 }
 
 .type-agent {
@@ -1912,8 +1987,11 @@ button:disabled {
 }
 
 @media (max-width: 900px) {
-  .intro {
+  .home-skin {
     background-position: 62% center;
+  }
+
+  .intro {
     min-height: 560px;
     padding: 52px 42px;
   }
@@ -2021,17 +2099,20 @@ button:disabled {
     font-size: 0;
   }
 
-  .intro {
+  .home-skin {
     background-image:
       linear-gradient(90deg, rgba(4, 17, 29, 0.94) 0%, rgba(4, 17, 29, 0.68) 56%, rgba(4, 17, 29, 0.15) 100%),
       linear-gradient(0deg, rgba(4, 17, 29, 0.72) 0%, transparent 48%),
+      linear-gradient(180deg, rgba(244, 185, 66, 0.12) 0%, transparent 34%),
       url("/agent-hive-hero-dotted.webp");
     background-position: 64% center;
-    border-radius: 13px;
+  }
+
+  .intro {
     gap: 26px;
     min-height: 570px;
-    padding: 42px 28px 38px;
-    width: calc(100% - 24px);
+    padding: 42px 20px 38px;
+    width: 100%;
   }
 
   .intro h1 {

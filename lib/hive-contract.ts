@@ -3,6 +3,17 @@ export const CATALOG_SCHEMA = "org.buzz.agent-hive.catalog/v1";
 export type FilesystemAccess = "none" | "read-only" | "project-write";
 export type RiskLevel = "low" | "review" | "elevated";
 export type ReleaseType = "agent" | "pack";
+export const AGENT_CATEGORIES = [
+  "research",
+  "development",
+  "design",
+  "operations",
+  "data",
+  "marketing",
+  "security",
+  "personal",
+] as const;
+export type AgentCategory = (typeof AGENT_CATEGORIES)[number];
 
 export interface McpCapability {
   name: string;
@@ -20,6 +31,7 @@ export interface ReleaseMetadata {
   id: string;
   name: string;
   version: string;
+  category: AgentCategory;
   summary: string;
   description: string;
   license: string;
