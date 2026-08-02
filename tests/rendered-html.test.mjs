@@ -36,6 +36,11 @@ test("server-renders the finished HiveBuzz product", async () => {
   assert.match(html, /Draft Polisher/);
   assert.match(html, /Meeting Synthesizer/);
   assert.match(html, /Data Explainer/);
+  assert.match(html, /Spec Auditor/);
+  assert.match(html, /Bug Triage/);
+  assert.match(html, /Threat Modeler/);
+  assert.match(html, /Reader Tester/);
+  assert.match(html, /Prompt Safety Reviewer/);
   assert.match(html, /Codex/);
   assert.match(html, /Provider default/);
   assert.doesNotMatch(html, /Release Scout|Persona Packs|\.buzzpack/);

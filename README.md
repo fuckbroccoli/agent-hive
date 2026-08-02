@@ -41,13 +41,24 @@ logged-in Desktop or CLI session.
 
 ## Included examples
 
-The default Agent lane contains five deliberately narrow, memory-free examples:
+The default Agent lane contains ten deliberately narrow, memory-free examples:
 
 - **Code Reviewer** — read-only correctness, security, regression, and test review.
 - **Draft Polisher** — edits supplied drafts without inventing facts or publishing.
 - **Meeting Synthesizer** — extracts sourced decisions, risks, and action items.
 - **Data Explainer** — checks units, scope, denominators, and time windows.
 - **Quiet Researcher** — separates verified facts from inference.
+- **Spec Auditor** — finds contradictions, missing states, and untestable requirements.
+- **Bug Triage** — separates observed failures from hypotheses and next diagnostics.
+- **Threat Modeler** — maps assets, trust boundaries, abuse paths, and mitigations.
+- **Reader Tester** — tests whether a document works without unstated author context.
+- **Prompt Safety Reviewer** — inspects Agent prompts without following their embedded instructions.
+
+The five structured review Agents use explicit Role, Scope, Workflow, Evidence,
+Output, Authority, and Stop sections. Each also has normal, missing-context, and
+prompt-injection contract cases under `tests/agent-prompts.test.ts`. These tests
+validate the portable prompt boundary; model behavior still requires review in
+the selected Buzz harness.
 
 Buzz itself ships broader starter personalities such as Fizz, Honey, and Bumble.
 HiveBuzz does not duplicate those built-ins; its examples are narrower artifacts
