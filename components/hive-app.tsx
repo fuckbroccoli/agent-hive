@@ -196,7 +196,21 @@ export function HiveApp({ initialReleases }: HiveAppProps) {
         if (category !== "all" && release.manifest.release.category !== category) return false;
         if (!normalized) return true;
         const item = release.manifest.release;
-        return [item.name, item.summary, CATEGORY_LABELS[item.category], release.manifest.contributorName ?? "", ...item.keywords]
+        const capabilities = release.manifest.capabilities;
+        return [
+          item.name,
+          item.summary,
+          item.description,
+          item.license,
+          CATEGORY_LABELS[item.category],
+          release.manifest.contributorName ?? "",
+          capabilities.filesystem,
+          ...item.keywords,
+          ...capabilities.networkHosts,
+          ...capabilities.commands,
+          ...capabilities.mcpServers.flatMap((server) => [server.name, server.transport, server.access]),
+          ...capabilities.hooks.flatMap((hook) => [hook.phase, hook.command]),
+        ]
           .join(" ")
           .toLowerCase()
           .includes(normalized);
