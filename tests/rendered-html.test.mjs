@@ -194,3 +194,18 @@ test("Persona Pack distribution is removed", async () => {
   const packageJson = await readFile(new URL("../package.json", import.meta.url), "utf8");
   assert.doesNotMatch(packageJson, /fflate/);
 });
+
+test("declares Apache-2.0 for the platform without relicensing listed agents", async () => {
+  const [license, notice, packageJson, readme] = await Promise.all([
+    readFile(new URL("../LICENSE", import.meta.url), "utf8"),
+    readFile(new URL("../NOTICE", import.meta.url), "utf8"),
+    readFile(new URL("../package.json", import.meta.url), "utf8"),
+    readFile(new URL("../README.md", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(license, /Apache License\s+Version 2\.0, January 2004/);
+  assert.match(license, /Copyright 2026 promptprobe/);
+  assert.match(notice, /HiveBuzz/);
+  assert.equal(JSON.parse(packageJson).license, "Apache-2.0");
+  assert.match(readme, /Listing or distributing an artifact through\s+HiveBuzz does not relicense it/);
+});
