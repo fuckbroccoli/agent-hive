@@ -105,6 +105,18 @@ not a public issue.
 Withdrawal stops future HiveBuzz distribution. It cannot recall prior downloads,
 forks, browser caches, or Git history.
 
+## License
+
+HiveBuzz source code is licensed under the
+[Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
+
+Agent snapshots and other third-party artifacts remain subject to the license
+declared by their publisher. Listing or distributing an artifact through
+HiveBuzz does not relicense it under the HiveBuzz project license.
+
+Apache-2.0 does not grant permission to use the HiveBuzz name or logo to imply
+endorsement.
+
 ## Development
 
 ```bash
